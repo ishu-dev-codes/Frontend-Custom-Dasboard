@@ -1,0 +1,34 @@
+<div class="card">
+  <div class="card-label">{{ data.title }}</div>
+  <div class="card-value">{{ data.value }}</div>
+  @if (data.extras?.length) {
+    <div class="extras-row">
+      @for (extra of data.extras; track extra.label) {
+        <div class="extra-item">
+          <span class="extra-label" [class]="extra.color ? 'extra--' + extra.color : ''">
+            {{ extra.label }}
+          </span>
+          <span class="extra-value" [class]="extra.color ? 'extra--' + extra.color : ''">
+            {{ extra.value }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (data.infoText) {
+    <button class="info-btn" (click)="toggleInfo($event)" title="What is this metric?">
+      <i class="pi pi-info-circle"></i>
+    </button>
+    @if (showInfo) {
+      <div class="info-popup">{{ data.infoText }}</div>
+    }
+  }
+
+  @if (data.clickable !== false) {
+    <button class="details-btn" (click)="$event.stopPropagation(); cardClick.emit()" title="View details">
+      <i class="pi pi-ellipsis-h"></i>
+    </button>
+  }
+</div>
+ 

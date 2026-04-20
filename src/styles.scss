@@ -1,0 +1,111 @@
+@layer primeng;
+@import "primeicons/primeicons.css";
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f2f7;
+}
+
+/* ── Modal dialog footer ─────────────────────────────── */
+.p-dialog .p-dialog-footer {
+  overflow: visible !important;
+}
+
+/* ── Paginator (modal footer, light theme forced) ─────── */
+.footer-paginator .p-paginator {
+  background: #fff !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+
+  .p-paginator-first,
+  .p-paginator-prev,
+  .p-paginator-next,
+  .p-paginator-last {
+    min-width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    background: #fff !important;
+
+    &:not(.p-disabled):hover {
+      background: #f3f4f6 !important;
+    }
+
+    &.p-disabled {
+      opacity: 0.4;
+    }
+
+    svg, span { color: #374151 !important; }
+  }
+
+  .p-paginator-page {
+    min-width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    background: #fff !important;
+
+    &:hover { background: #f3f4f6 !important; }
+
+    &.p-highlight {
+      background: linear-gradient(135deg, #4facfe, #7c3aed) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+    }
+  }
+
+  .p-paginator-current {
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    background: transparent !important;
+  }
+
+  /* rows-per-page select */
+  .p-select {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    color: #374151 !important;
+
+    .p-select-label { color: #374151 !important; font-size: 13px !important; }
+    .p-select-dropdown svg { color: #374151 !important; }
+
+    &:hover { border-color: #d1d5db !important; }
+  }
+}
+
+/* rows-per-page dropdown panel (appended to body) */
+.p-select-overlay {
+  background: #fff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+
+  .p-select-list-container { background: #fff !important; }
+
+  .p-select-option {
+    color: #374151 !important;
+    font-size: 13px !important;
+
+    &:hover, &.p-select-option-selected {
+      background: #f3f4f6 !important;
+      color: #111827 !important;
+    }
+
+    &.p-highlight {
+      background: linear-gradient(135deg, #4facfe, #7c3aed) !important;
+      color: #fff !important;
+    }
+  }
+}

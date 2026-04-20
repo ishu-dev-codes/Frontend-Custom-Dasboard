@@ -1,0 +1,23 @@
+<div class="card-host">
+  <p-card class="stat-card">
+    <div class="card-label">{{ data.title }}</div>
+    <div class="card-value">{{ data.value }}</div>
+    <div class="card-sub">
+      <span class="sub-label" [class]="'sub--' + data.sub.color">{{ data.sub.label }}</span>
+      <span class="sub-value" [class]="'sub--' + data.sub.color">{{ data.sub.value }}</span>
+    </div>
+  </p-card>
+
+  @if (data.infoText) {
+    <button class="info-btn" (click)="toggleInfo($event)" title="What is this metric?">
+      <i class="pi pi-info-circle"></i>
+    </button>
+    @if (showInfo) {
+      <div class="info-popup">{{ data.infoText }}</div>
+    }
+  }
+
+  <button class="details-btn" (click)="$event.stopPropagation(); cardClick.emit()" title="View details">
+    <i class="pi pi-ellipsis-h"></i>
+  </button>
+</div>

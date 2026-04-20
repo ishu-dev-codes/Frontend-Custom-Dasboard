@@ -1,0 +1,81 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [style]="{ width: '860px' }"
+  [contentStyle]="{ padding: '0' }">
+
+  <ng-template pTemplate="header">
+    <div class="modal-header">
+      <span class="modal-title">{{ data.title }}</span>
+      <button class="close-btn" (click)="close.emit()">&#x2715;</button>
+    </div>
+  </ng-template>
+
+  @if (data.tableLoading || data.headers.length > 0) {
+    <p-table
+      [value]="tableRows"
+      [columns]="tableColumns"
+      [loading]="!!data.tableLoading"
+      [scrollable]="true"
+      [scrollHeight]="'380px'"
+      class="p-datatable-striped p-datatable-sm">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          @for (col of columns; track col.field) {
+            <th>{{ col.header }}</th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-columns="columns">
+        <tr>
+          @for (col of columns; track col.field) {
+            <td>{{ row[col.field] }}</td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length" class="empty-message">
+            No records found
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="no-data-state">
+      <i class="pi pi-inbox no-data-icon"></i>
+      <p>No data found</p>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="footer-paginator">
+      <div class="paginator-row">
+        <p-paginator
+          [rows]="data.pageSize ?? 10"
+          [totalRecords]="data.total ?? 0"
+          [first]="first"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+          [pageLinkSize]="5"
+        />
+        <select class="page-size-select"
+          [ngModel]="data.pageSize ?? 10"
+          (ngModelChange)="onPageSizeChange(+$event)">
+          <option [value]="10">10 / page</option>
+          <option [value]="25">25 / page</option>
+          <option [value]="50">50 / page</option>
+        </select>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <p-button label="Close" (onClick)="close.emit()" styleClass="close-action-btn" />
+    </div>
+  </ng-template>
+
+</p-dialog>

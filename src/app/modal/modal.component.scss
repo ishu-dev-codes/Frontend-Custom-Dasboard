@@ -1,0 +1,249 @@
+/* ── Dialog header ──────────────────────────────────── */
+::ng-deep .p-dialog {
+  border-radius: 12px;
+  overflow: hidden;
+
+  .p-dialog-header {
+    padding: 0;
+    background: linear-gradient(135deg, #4facfe, #7c3aed);
+    border-bottom: none;
+  }
+
+  .p-dialog-footer {
+    padding: 0;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+  }
+
+  .p-dialog-content{
+    overflow: visible;
+    padding: 0 !important;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 24px;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* ── Empty states ───────────────────────────────────── */
+.no-data-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 380px;
+  gap: 12px;
+  color: #9ca3af;
+
+  .no-data-icon {
+    font-size: 48px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 500;
+  }
+}
+
+::ng-deep .empty-message {
+  text-align: center !important;
+  color: #9ca3af !important;
+  font-size: 14px !important;
+  padding: 48px 20px !important;
+}
+
+/* ── Table ──────────────────────────────────────────── */
+::ng-deep .p-datatable {
+  .p-datatable-thead > tr > th {
+    background: #f8fafc;
+    color: #374151;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 12px 20px;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  .p-datatable-tbody > tr > td {
+    padding: 11px 20px;
+    font-size: 13px;
+    color: #4b5563;
+    background: #f9fafb;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .p-datatable-tbody > tr:hover > td {
+    background: #f9fafb;
+  }
+
+  .p-datatable-tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+
+  .p-datatable-striped .p-datatable-tbody > tr:nth-child(even) > td {
+    background: #fafafa;
+  }
+}
+
+/* ── Paginator ──────────────────────────────────────── */
+::ng-deep .footer-paginator .p-paginator {
+  background: #fff;
+  border: none;
+  padding: 10px 16px;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+
+  .p-paginator-first,
+  .p-paginator-prev,
+  .p-paginator-next,
+  .p-paginator-last {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+
+    &:not(.p-disabled):hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    &.p-disabled {
+      opacity: 0.4;
+    }
+  }
+
+  .p-paginator-page {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+
+    &.p-highlight {
+      background: linear-gradient(135deg, #4facfe, #7c3aed);
+      color: #fff;
+      border-color: transparent;
+    }
+  }
+
+  .p-paginator-current {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  /* rows-per-page select */
+  .p-paginator-rpp-select {
+    .p-select {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      height: 32px;
+      min-width: 70px;
+
+      .p-select-label {
+        color: #374151;
+        font-size: 13px;
+        padding: 5px 8px;
+      }
+
+      .p-select-dropdown {
+        color: #374151;
+      }
+
+      &:hover {
+        border-color: #d1d5db;
+      }
+    }
+  }
+}
+
+/* ── Footer layout ──────────────────────────────────── */
+.footer-paginator {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.paginator-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 16px;
+
+  .page-size-select {
+    height: 32px;
+    min-width: 110px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    color: #374151;
+    padding: 0 8px;
+    cursor: pointer;
+    outline: none;
+    appearance: auto;
+
+    &:hover { border-color: #d1d5db; }
+    &:focus { border-color: #4facfe; }
+  }
+}
+
+.footer-actions {
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Footer button ──────────────────────────────────── */
+::ng-deep .close-action-btn.p-button {
+  background: linear-gradient(135deg, #4facfe, #7c3aed);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.88;
+    background: linear-gradient(135deg, #4facfe, #7c3aed);
+  }
+}

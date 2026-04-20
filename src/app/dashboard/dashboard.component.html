@@ -1,0 +1,146 @@
+<div class="dashboard-header">
+  <div class="header-logo">
+    @if (logoUrl) {
+      <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
+    } @else {
+      <div class="logo-placeholder">
+        <svg width="200" height="35" viewBox="0 0 200 35" xmlns="http://www.w3.org/2000/svg">
+          <rect width="200" height="35" fill="#fbfbfb" rx="4" />
+          <g transform="translate(16, 17)">
+            <circle cx="0" cy="0" r="10" fill="none" stroke="#0d1c4a" stroke-width="1.4" />
+            <path
+              d="M-3.5 -1.5 Q-3.5 -5 0 -5 Q3.5 -5 3.5 -1.5 Q3.5 2 0 4.5 Q-3.5 2 -3.5 -1.5 Z"
+              fill="none"
+              stroke="#0d1c4a"
+              stroke-width="1.2"
+              stroke-linejoin="round"
+            />
+          </g>
+          <text
+            x="34"
+            y="22"
+            font-family="Arial, sans-serif"
+            font-size="11"
+            font-weight="600"
+            fill="#0d1c4a"
+            letter-spacing="3"
+          >
+            CUSTOM
+          </text>
+        </svg>
+      </div>
+    }
+  </div>
+
+  <div class="dashborad-header-text">
+    <h3>RAPIDConvert Dashboard</h3>
+  </div>
+
+  <div class="header-controls">
+    @if (selectedPreset === 'custom') {
+      <div class="control-group">
+        <label class="control-label">Custom Range</label>
+        <p-datepicker
+          [(ngModel)]="customDateRange"
+          selectionMode="range"
+          dateFormat="mm/dd/yy"
+          placeholder="Select date range"
+          class="header-datepicker"
+          (onSelect)="onDateRangeChange()"
+        />
+      </div>
+    } @else {
+      <div class="control-group">
+        <label class="control-label">Period</label>
+        <div class="date-display">{{ getDateRangeDisplay() }}</div>
+      </div>
+    }
+
+    <div class="control-group">
+      <label class="control-label">Date Range</label>
+      <p-select
+        [options]="datePresets"
+        [(ngModel)]="selectedPreset"
+        optionLabel="label"
+        optionValue="value"
+        class="header-select"
+        (onChange)="onPresetChange($event)"
+      />
+    </div>
+
+    <!-- <div class="control-group">
+        <label class="control-label">Interval</label>
+        <p-select
+          [options]="intervalOptions"
+          [(ngModel)]="selectedInterval"
+          optionLabel="label"
+          optionValue="value"
+          class="header-select"
+        />
+      </div> -->
+  </div>
+</div>
+<div class="dashboard">
+  <!-- Header -->
+
+  <!-- Marketing Metrics -->
+  <section class="section">
+    <h2 class="section-title">Marketing Metrics</h2>
+    <div class="cards-grid">
+      @if (isLoading) {
+        <!-- <div class="grid"> -->
+          <div class="col-12 md:col-4" *ngFor="let i of [1, 2, 3, 4]">
+            <app-skeleton-card></app-skeleton-card>
+          </div>
+        <!-- </div> -->
+      } @else {
+        @for (card of marketingCards; track card.id) {
+          <app-gradient-card
+            [data]="card"
+            (cardClick)="openModal(card.id)"
+          />
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Lead Conversion Metrics -->
+  <section class="section">
+    <h2 class="section-title">Lead Conversion Metrics</h2>
+    <div class="cards-grid">
+      @if (isLoading) {
+        <!-- <div class="grid"> -->
+          <div class="col-12 md:col-4" *ngFor="let i of [1, 2, 3, 4]">
+            <app-skeleton-card></app-skeleton-card>
+          </div>
+        <!-- </div> -->
+      } @else {
+        @for (card of patientCards; track card.id) {
+          <app-stat-card [data]="card" (cardClick)="openModal(card.id)" />
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Case Acceptance Metrics -->
+  <section class="section">
+    <h2 class="section-title">Case Acceptance Metrics</h2>
+    <div class="cards-grid">
+      @if (isLoading) {
+        <!-- <div class="grid"> -->
+          <div class="col-12 md:col-4" *ngFor="let i of [1, 2, 3, 4]">
+            <app-skeleton-card></app-skeleton-card>
+          </div>
+        <!-- </div> -->
+      } @else {
+        @for (card of roiCards; track card.id) {
+          <app-roi-card [data]="card" (cardClick)="openModal(card.id)" />
+        }
+      }
+    </div>
+  </section>
+</div>
+
+@if (activeModal) {
+  <app-modal [data]="activeModal" (close)="closeModal()" (pageChange)="onSbxLeadsPageChange($event)" />
+}
