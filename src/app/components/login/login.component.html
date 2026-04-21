@@ -1,0 +1,19 @@
+<div class="login-container">
+  <div class="card">
+
+    <h2>Welcome</h2>
+
+    <button (click)="login()" [disabled]="loading">
+      {{ loading ? 'Redirecting...' : 'Continue with GHL' }}
+    </button>
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+    <p *ngIf="loading" class="info">
+      Redirecting to secure login...
+    </p>
+
+  </div>
+</div>

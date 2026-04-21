@@ -8,6 +8,8 @@
   [style]="{ width: '70vw' }"
   [contentStyle]="{ padding: '0' }">
 
+ 
+  
   <ng-template pTemplate="header">
     <div class="modal-header">
       <span class="modal-title">{{ data.title }}</span>
@@ -15,7 +17,12 @@
     </div>
   </ng-template>
 
-  @if (data.tableLoading || data.headers.length > 0) {
+  @if (data.tableLoading && data.headers.length === 0) {
+    <div class="modal-loading-state">
+      <span class="modal-spinner"></span>
+      <p>Loading data…</p>
+    </div>
+  } @else if (data.headers.length > 0) {
     <p-table
       [value]="tableRows"
       [columns]="tableColumns"

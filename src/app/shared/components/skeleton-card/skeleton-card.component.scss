@@ -24,3 +24,9 @@
     0%   { transform: translateX(-100%); }
     100% { transform: translateX(200%); }
 }
+
+.lines{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

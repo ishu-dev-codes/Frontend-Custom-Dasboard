@@ -4,6 +4,7 @@ import { Dialog } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
 import { Paginator, PaginatorState } from 'primeng/paginator';
+import { CommonModule } from '@angular/common';
 
 export interface ModalTableData {
   title: string;
@@ -18,7 +19,7 @@ export interface ModalTableData {
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [Dialog, TableModule, Button, Paginator, FormsModule],
+  imports: [Dialog, TableModule, Button, Paginator, FormsModule, CommonModule],
   templateUrl: './modal.component.html',
   styleUrl: './modal.component.scss',
 })

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { HttpService } from "./http.service";
+import { AuthService } from "./auth.service";
 
 export interface SbxLeadsResponse {
   metric_name: string;
@@ -14,7 +15,6 @@ export interface SbxLeadsResponse {
 }
 
 export interface SbxLeadsParams {
-  access_token: string;
   start_date: string;
   end_date: string;
   page?: number;
@@ -25,25 +25,20 @@ export interface SbxLeadsParams {
     providedIn: 'root'
 })
 export class DashboardService{
-    constructor(private http: HttpService) {}
+    constructor(private http: HttpService, private authService: AuthService) {}
 
-  /**
-   * GET: /metrics/lead-conversion-metrics
-   * Query Params:
-   * - location_id
-   * - access_token
-   */
-  getMarketingMetrics(accessToken: string, startDate?: string, endDate?: string): Observable<any> {
+
+  getMarketingMetrics(startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/marketing-metrics/cards', {
-      access_token: accessToken,
+      access_token: this.authService.getAccessToken(),
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });
   }
 
-  getCaseAcceptanceMetrics(accessToken: string, startDate?: string, endDate?: string): Observable<any> {
+  getCaseAcceptanceMetrics(startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/case-acceptance-metrics/cards', {
-      access_token: accessToken,
+      access_token: this.authService.getAccessToken(),
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });
@@ -51,7 +46,7 @@ export class DashboardService{
 
   getTotalSbxLeads(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/total-sbx-leads', {
-      access_token: params.access_token,
+      access_token: this.authService.getAccessToken(),
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -61,7 +56,7 @@ export class DashboardService{
 
   getLeadsAbandoned(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-abandoned', {
-      access_token: params.access_token,
+      access_token: this.authService.getAccessToken(),
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -71,7 +66,7 @@ export class DashboardService{
 
   getLeadsBooked(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-booked', {
-      access_token: params.access_token,
+      access_token: this.authService.getAccessToken(),
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -81,7 +76,7 @@ export class DashboardService{
 
   getLeadsWon(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-won', {
-      access_token: params.access_token,
+      access_token: this.authService.getAccessToken(),
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -91,7 +86,7 @@ export class DashboardService{
 
   getLeadsFta(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-fta', {
-      access_token: params.access_token,
+      access_token: this.authService.getAccessToken(),
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -99,9 +94,9 @@ export class DashboardService{
     });
   }
 
-  getLeadConversionMetrics(accessToken: string, startDate?: string, endDate?: string): Observable<any> {
+  getLeadConversionMetrics(startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/lead-conversion-metrics/cards', {
-      access_token: accessToken,
+      access_token: this.authService.getAccessToken(),
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });

@@ -1,33 +1,11 @@
-<div class="dashboard-header">
+<!-- <div class="dashboard-header">
   <div class="header-logo">
     @if (logoUrl) {
-      <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
+      <img [src]="logoUrl" alt="Client Logo" class="logo-img" (click)="login()" />
     } @else {
       <div class="logo-placeholder">
-        <svg width="200" height="35" viewBox="0 0 200 35" xmlns="http://www.w3.org/2000/svg">
-          <rect width="200" height="35" fill="#fbfbfb" rx="4" />
-          <g transform="translate(16, 17)">
-            <circle cx="0" cy="0" r="10" fill="none" stroke="#0d1c4a" stroke-width="1.4" />
-            <path
-              d="M-3.5 -1.5 Q-3.5 -5 0 -5 Q3.5 -5 3.5 -1.5 Q3.5 2 0 4.5 Q-3.5 2 -3.5 -1.5 Z"
-              fill="none"
-              stroke="#0d1c4a"
-              stroke-width="1.2"
-              stroke-linejoin="round"
-            />
-          </g>
-          <text
-            x="34"
-            y="22"
-            font-family="Arial, sans-serif"
-            font-size="11"
-            font-weight="600"
-            fill="#0d1c4a"
-            letter-spacing="3"
-          >
-            CUSTOM
-          </text>
-        </svg>
+        <img src="svgs/custom.svg"/>
+     
       </div>
     }
   </div>
@@ -68,18 +46,25 @@
       />
     </div>
 
-    <!-- <div class="control-group">
-        <label class="control-label">Interval</label>
-        <p-select
-          [options]="intervalOptions"
-          [(ngModel)]="selectedInterval"
-          optionLabel="label"
-          optionValue="value"
-          class="header-select"
-        />
-      </div> -->
+       <div class="profile-menu-wrapper">
+    <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
+      <i class="pi pi-user"></i>
+    </button>
+    @if (profileMenuOpen) {
+      <div class="profile-dropdown">
+        <button class="profile-dropdown-item logout-item" (click)="logout()">
+          <i class="pi pi-sign-out"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    }
   </div>
-</div>
+  </div>
+
+ 
+</div> -->
+
+<app-header (dateRangeChanged)="onDateRangeChanged($event)" />
 <div class="dashboard">
   <!-- Header -->
 

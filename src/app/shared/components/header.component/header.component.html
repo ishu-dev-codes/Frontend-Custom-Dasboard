@@ -1,0 +1,64 @@
+<div class="dashboard-header" *ngIf="authService.authState$ | async">
+  <div class="header-logo">
+    @if (logoUrl) {
+      <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
+    } @else {
+      <div class="logo-placeholder">
+        <img src="svgs/custom.svg"/>
+      </div>
+    }
+  </div>
+
+  <div class="dashborad-header-text">
+    <h3>RAPIDConvert Dashboard</h3>
+  </div>
+
+  <div class="header-controls">
+    @if (selectedPreset === 'custom') {
+      <div class="control-group">
+        <label class="control-label">Custom Range</label>
+        <p-datepicker
+          [(ngModel)]="customDateRange"
+          selectionMode="range"
+          dateFormat="mm/dd/yy"
+          placeholder="Select date range"
+          class="header-datepicker"
+          (onSelect)="onDateRangeChange()"
+        />
+      </div>
+    } @else {
+      <div class="control-group">
+        <label class="control-label">Period</label>
+        <div class="date-display">{{ getDateRangeDisplay() }}</div>
+      </div>
+    }
+
+    <div class="control-group">
+      <label class="control-label">Date Range</label>
+      <p-select
+        [options]="datePresets"
+        [(ngModel)]="selectedPreset"
+        optionLabel="label"
+        optionValue="value"
+        class="header-select"
+        (onChange)="onPresetChange($event)"
+      />
+    </div>
+
+       <div class="profile-menu-wrapper">
+    <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
+      <i class="pi pi-user"></i>
+    </button>
+    @if (profileMenuOpen) {
+      <div class="profile-dropdown">
+        <button class="profile-dropdown-item logout-item" (click)="logout()">
+          <i class="pi pi-sign-out"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    }
+  </div>
+  </div>
+
+ 
+</div>
