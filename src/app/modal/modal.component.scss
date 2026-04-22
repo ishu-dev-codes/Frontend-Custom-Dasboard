@@ -47,11 +47,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.35);
-  }
 }
 
 /* ── Loading state ──────────────────────────────────── */
@@ -270,10 +265,10 @@
   padding: 9px 24px;
   font-size: 14px;
   font-weight: 500;
-  transition: opacity 0.2s;
+  // transition: opacity 0.2s;
 
   &:hover {
-    opacity: 0.88;
-    background: linear-gradient(135deg, #4facfe, #7c3aed);
+    border:none !important;
+    background: linear-gradient(135deg, #4facfe, #7c3aed) !important;
   }
 }

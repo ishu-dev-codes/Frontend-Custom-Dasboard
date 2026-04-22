@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-label">{{ data.title }}</div>
   <div class="card-value">{{ data.value }}</div>
-  @if (data.extras?.length) {
+  <!-- @if (data.extras?.length) {
     <div class="extras-row">
       @for (extra of data.extras; track extra.label) {
         <div class="extra-item">
@@ -14,7 +14,7 @@
         </div>
       }
     </div>
-  }
+  } -->
 
   @if (data.infoText) {
     <button class="info-btn" (click)="toggleInfo($event)" title="What is this metric?">

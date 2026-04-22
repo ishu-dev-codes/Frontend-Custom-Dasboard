@@ -1,7 +1,9 @@
+:host { display: block; height: 100%; }
+
 ::ng-deep{
     .p-card{
         background: #fff !important;
-        height: 145px;
+        height: 100%;
     }
 
     .p-skeleton{

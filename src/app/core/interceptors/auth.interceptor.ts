@@ -8,7 +8,7 @@ let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 // use stored expiry (no decoding here)
-function isTokenExpiringSoon(bufferMs = (23 * 60 * 60 * 1000) + 3480000): boolean {
+function isTokenExpiringSoon(bufferMs = (5 * 60 * 1000)): boolean {
   const expiry = Number(localStorage.getItem(AUTH_STORAGE_KEYS.EXPIRY));
   if (!expiry) return true;
 
