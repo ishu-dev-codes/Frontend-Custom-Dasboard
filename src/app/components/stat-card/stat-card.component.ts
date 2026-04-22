@@ -5,7 +5,7 @@ export interface StatCardData {
   id: string;
   title: string;
   value: string;
-  infoText?: string;
+  info?: string;
   sub: { label: string; value: string; color: 'green' | 'red', };
 }
 

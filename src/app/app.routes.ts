@@ -4,6 +4,8 @@ import { AuthCallbackComponent } from './components/auth-callback/auth-callback.
 import { AuthGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './components/login/login.component';
 import { LoginGuard } from './core/guards/login.guard';
+import { ClientAccountsComponent } from './components/client-accounts/client-accounts.component';
+import { ClientAccountsGuard } from './core/guards/client-accounts.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -12,6 +14,11 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'client-accounts',
+    component: ClientAccountsComponent,
+    canActivate: [ClientAccountsGuard]
   },
   { path: 'auth/callback', component: AuthCallbackComponent }
 ];

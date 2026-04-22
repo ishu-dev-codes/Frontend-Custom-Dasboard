@@ -8,12 +8,12 @@
     </div>
   </p-card>
 
-  @if (data.infoText) {
+  @if (data.info) {
     <button class="info-btn" (click)="toggleInfo($event)" title="What is this metric?">
       <i class="pi pi-info-circle"></i>
     </button>
     @if (showInfo) {
-      <div class="info-popup">{{ data.infoText }}</div>
+      <div class="info-popup">{{ data.info }}</div>
     }
   }
 

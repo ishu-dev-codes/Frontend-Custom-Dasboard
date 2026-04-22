@@ -1,0 +1,63 @@
+.ca-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ca-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.ca-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1e293b;
+}
+
+.ca-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.ca-mono {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.ca-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 32px 0;
+}
+
+.ca-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.ca-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+.ca-required {
+  color: #ef4444;
+}

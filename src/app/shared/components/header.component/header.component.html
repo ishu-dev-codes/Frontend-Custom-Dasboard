@@ -13,9 +13,20 @@
     <h3>RAPIDConvert Dashboard</h3>
   </div>
 
+  @if (showClientAccounts) {
+  <nav class="header-nav">
+    <!-- <a class="header-nav-link" [class.active]="router.url === '/dashboard'" (click)="router.navigate(['/dashboard'])">
+      <i class="pi pi-th-large"></i> Dashboard
+    </a> -->
+      <a class="header-nav-link" [class.active]="router.url === '/client-accounts'" (click)="router.navigate(['/client-accounts'])">
+        <i class="pi pi-users"></i> Client Accounts
+      </a>
+    </nav>
+  }
+
   <div class="header-controls">
     @if (selectedPreset === 'custom') {
-      <div class="control-group">
+      <div class="control-group" *ngIf="!showClientAccounts">
         <label class="control-label">Custom Range</label>
         <p-datepicker
           [(ngModel)]="customDateRange"
@@ -27,13 +38,13 @@
         />
       </div>
     } @else {
-      <div class="control-group">
+      <div class="control-group" *ngIf="!showClientAccounts">
         <label class="control-label">Period</label>
         <div class="date-display">{{ getDateRangeDisplay() }}</div>
       </div>
     }
 
-    <div class="control-group">
+    <div class="control-group" *ngIf="!showClientAccounts">
       <label class="control-label">Date Range</label>
       <p-select
         [options]="datePresets"
@@ -45,7 +56,7 @@
       />
     </div>
 
-       <div class="profile-menu-wrapper">
+    <div class="profile-menu-wrapper">
     <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
       <i class="pi pi-user"></i>
     </button>

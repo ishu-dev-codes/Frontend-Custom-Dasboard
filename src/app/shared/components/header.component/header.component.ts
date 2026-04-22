@@ -26,6 +26,7 @@ export class HeaderComponent implements OnInit {
 
   profileMenuOpen = false;
   logoUrl = '';
+  readonly showClientAccounts = localStorage.getItem('location_id') === 'wLbWopWGch5Col0WyuJd';
 
   datePresets = [
     { label: 'This Week', value: 'this_week' },
@@ -33,7 +34,6 @@ export class HeaderComponent implements OnInit {
     { label: 'Last Month', value: 'last_month' },
     { label: 'Last 3 Months', value: 'last_3_months' },
     { label: 'Last Year', value: 'last_year' },
-    { label: 'All Time', value: 'all_time' },
     { label: 'Custom Range', value: 'custom' },
   ];
 
@@ -64,47 +64,121 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  getDateRange(): DateRange {
-    const now = new Date();
+  // getDateRange(): DateRange {
+  //   const now = new Date();
 
-    switch (this.selectedPreset) {
-      case 'this_week': {
-        const start = new Date(now);
-        start.setDate(now.getDate() - now.getDay());
-        return { startDate: start, endDate: now };
-      }
-      case 'last_week': {
-        const start = new Date(now);
-        start.setDate(now.getDate() - now.getDay() - 7);
-        const end = new Date(start);
-        end.setDate(start.getDate() + 6);
-        return { startDate: start, endDate: end };
-      }
-      case 'last_month': {
-        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const end = new Date(now.getFullYear(), now.getMonth(), 0);
-        return { startDate: start, endDate: end };
-      }
-      case 'last_3_months': {
-        const start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-        return { startDate: start, endDate: now };
-      }
-      case 'last_year': {
-        const start = new Date(now.getFullYear() - 1, 0, 1);
-        const end = new Date(now.getFullYear() - 1, 11, 31);
-        return { startDate: start, endDate: end };
-      }
-      case 'custom': {
-        if (this.customDateRange?.length === 2) {
-          return { startDate: this.customDateRange[0], endDate: this.customDateRange[1] };
-        }
-        return { startDate: null, endDate: null };
-      }
-      default:
-        return { startDate: null, endDate: null };
+  //   switch (this.selectedPreset) {
+  //     case 'this_week': {
+  //       const start = new Date(now);
+  //       start.setDate(now.getDate() - now.getDay());
+  //       return { startDate: start, endDate: now };
+  //     }
+  //     case 'last_week': {
+  //       const start = new Date(now);
+  //       start.setDate(now.getDate() - now.getDay() - 7);
+  //       const end = new Date(start);
+  //       end.setDate(start.getDate() + 6);
+  //       return { startDate: start, endDate: end };
+  //     }
+  //     case 'last_month': {
+  //       const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  //       const end = new Date(now.getFullYear(), now.getMonth(), 0);
+  //       return { startDate: start, endDate: end };
+  //     }
+  //     case 'last_3_months': {
+  //       const start = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  //       // const end = new Date(now.getFullYear(), now.getMonth() - 1, (now.getMonth() - 1));
+  //       return { startDate: start, endDate: now };
+  //     }
+  //     case 'last_year': {
+  //       const start = new Date(now.getFullYear() - 1, 0, 1);
+  //       const end = new Date(now.getFullYear() - 1, 11, 31);
+  //       return { startDate: start, endDate: end };
+  //     }
+  //     case 'custom': {
+  //       if (this.customDateRange?.length === 2) {
+  //         return { startDate: this.customDateRange[0], endDate: this.customDateRange[1] };
+  //       }
+  //       return { startDate: null, endDate: null };
+  //     }
+  //     default:
+  //       return { startDate: null, endDate: null };
+  //   }
+  // }
+getDateRange(): DateRange {
+  const now = new Date();
+
+  switch (this.selectedPreset) {
+
+    // ✅ THIS WEEK (Mon → Today)
+    case 'this_week': {
+      const start = new Date(now);
+
+      const day = now.getDay(); // 0 (Sun) → 6 (Sat)
+      const diff = (day === 0 ? -6 : 1 - day); // shift to Monday
+
+      start.setDate(now.getDate() + diff);
+
+      return { startDate: start, endDate: now };
     }
-  }
 
+    // ✅ LAST WEEK (Mon → Sun)
+    case 'last_week': {
+      const currentDay = now.getDay();
+      const diffToMonday = (currentDay === 0 ? -6 : 1 - currentDay);
+
+      // Monday of current week
+      const thisWeekMonday = new Date(now);
+      thisWeekMonday.setDate(now.getDate() + diffToMonday);
+
+      // Last week Monday
+      const start = new Date(thisWeekMonday);
+      start.setDate(thisWeekMonday.getDate() - 7);
+
+      // Last week Sunday
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+
+      return { startDate: start, endDate: end };
+    }
+
+    // ✅ LAST MONTH (FULL)
+    case 'last_month': {
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      return { startDate: start, endDate: end };
+    }
+
+    // ✅ LAST 3 MONTHS (ROLLING SAME DATE)
+    case 'last_3_months': {
+      const start = new Date(now);
+      start.setMonth(now.getMonth() - 3);
+
+      return { startDate: start, endDate: now };
+    }
+
+    // ✅ LAST YEAR (FULL)
+    case 'last_year': {
+      const start = new Date(now.getFullYear() - 1, 0, 1);
+      const end = new Date(now.getFullYear() - 1, 11, 31);
+      return { startDate: start, endDate: end };
+    }
+
+    // ✅ CUSTOM
+    case 'custom': {
+      if (this.customDateRange?.length === 2) {
+        return {
+          startDate: this.customDateRange[0],
+          endDate: this.customDateRange[1]
+        };
+      }
+      return { startDate: null, endDate: null };
+    }
+
+    default:
+      return { startDate: null, endDate: null };
+  }
+}
   getDateRangeDisplay(): string {
     const fmt = (d: Date | null) =>
       d ? d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '';

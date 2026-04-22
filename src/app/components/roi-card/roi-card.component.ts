@@ -10,7 +10,7 @@ export interface RoiCardData {
   id: string;
   title: string;
   value: string;
-  infoText?: string;
+  info?: string;
   extras?: RoiCardExtra[];
   clickable?: boolean;
 }

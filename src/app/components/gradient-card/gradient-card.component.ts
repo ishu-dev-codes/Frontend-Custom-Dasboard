@@ -5,8 +5,8 @@ export interface GradientCardData {
   id: string;
   title: string;
   value: string;
-  gradientIndex: 1 | 2 | 3 | 4;
-  infoText?: string;
+  // gradientIndex: 1 | 2 | 3 | 4;
+  info?: string;
   innerBox?: { label: string; value: string, color: 'green' | 'red' };
   clickable?: boolean;
 }
@@ -31,9 +31,9 @@ export class GradientCardComponent {
     4: '#fff',
   };
 
-  get cardStyle() {
-    return { background: this.gradients[this.data.gradientIndex], height: '100%' };
-  }
+  // get cardStyle() {
+  //   return { background: this.gradients[this.data.gradientIndex], height: '100%' };
+  // }
 
   toggleInfo(event: MouseEvent) {
     event.stopPropagation();

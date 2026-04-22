@@ -53,6 +53,10 @@ export class AuthService {
     localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, data.refresh_token);
     localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN_DATA, JSON.stringify(data));
 
+    if (data.location_id) {
+      localStorage.setItem('location_id', data.location_id);
+    }
+
     this.authState.next(true);
   }
 

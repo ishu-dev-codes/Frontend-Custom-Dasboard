@@ -1,0 +1,90 @@
+<app-header />
+
+<p-toast />
+<p-confirmDialog />
+
+<div class="ca-page">
+  <div class="ca-toolbar">
+    <h2 class="ca-title">Client Accounts</h2>
+    <button pButton icon="pi pi-plus" label="Add Account" class="p-button-sm" (click)="openCreate()"></button>
+  </div>
+
+  <p-table
+    [value]="accounts"
+    [loading]="isLoading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    styleClass="p-datatable-sm p-datatable-striped"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id" style="width:5%">ID <p-sortIcon field="id" /></th>
+        <th pSortableColumn="client_name">Client Name <p-sortIcon field="client_name" /></th>
+        <th pSortableColumn="ad_account_name">Ad Account Name <p-sortIcon field="ad_account_name" /></th>
+        <th>Ad Account ID</th>
+        <th>Location ID</th>
+        <th style="width:10%">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-account>
+      <tr>
+        <td>{{ account.id }}</td>
+        <td>{{ account.client_name }}</td>
+        <td>{{ account.ad_account_name }}</td>
+        <td class="ca-mono">{{ account.ad_account_id }}</td>
+        <td class="ca-mono">{{ account.location_id }}</td>
+        <td>
+          <div class="ca-actions">
+            <button pButton icon="pi pi-pencil" class="p-button-sm p-button-text p-button-secondary" (click)="openEdit(account)" title="Edit"></button>
+            <button pButton icon="pi pi-trash" class="p-button-sm p-button-text p-button-danger" (click)="confirmDelete(account)" title="Delete"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="ca-empty">No client accounts found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="dialogTitle"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="ca-form">
+    <div class="ca-field">
+      <label for="client_name">Client Name <span class="ca-required">*</span></label>
+      <input pInputText id="client_name" [(ngModel)]="form.client_name" placeholder="Enter client name" class="w-full" />
+    </div>
+
+    <div class="ca-field">
+      <label for="location_id">Location ID <span class="ca-required">*</span></label>
+      <input pInputText id="location_id" [(ngModel)]="form.location_id" placeholder="Enter location ID" class="w-full" />
+    </div>
+
+    <div class="ca-field">
+      <label for="ad_account_id">Ad Account ID</label>
+      <input pInputText id="ad_account_id" [(ngModel)]="form.ad_account_id" placeholder="e.g. act_1234567890" class="w-full" />
+    </div>
+
+    <div class="ca-field">
+      <label for="ad_account_name">Ad Account Name</label>
+      <input pInputText id="ad_account_name" [(ngModel)]="form.ad_account_name" placeholder="Enter ad account name" class="w-full" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="dialogVisible = false" [disabled]="isSaving"></button>
+    <button pButton [label]="editingId !== null ? 'Update' : 'Create'" (click)="saveAccount()" [loading]="isSaving"></button>
+  </ng-template>
+</p-dialog>

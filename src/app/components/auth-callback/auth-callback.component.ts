@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfigService } from '../../core/services/config.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -16,6 +17,7 @@ export class AuthCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
+    private configService: ConfigService,
     private router: Router
   ) {}
 
@@ -23,7 +25,6 @@ export class AuthCallbackComponent implements OnInit {
     const code = this.route.snapshot.queryParamMap.get('code');
     const errorParam = this.route.snapshot.queryParamMap.get('error');
 
-  
     if (errorParam) {
       this.loading = false;
       this.error = 'Login failed or cancelled';
@@ -31,7 +32,6 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
- 
     if (!code) {
       this.loading = false;
       this.error = 'Invalid login response';
@@ -39,10 +39,24 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
- 
     this.authService.exchangeCode(code).subscribe({
-      next: (res) => {
-        this.router.navigate(['/dashboard']);
+      next: async (res) => {
+        const tokenData = JSON.parse(localStorage.getItem('token_data') || '{}');
+        const locationId =
+          res.location_id ||
+          res['locationId'] ||
+          tokenData.location_id ||
+          tokenData['locationId'] ||
+          localStorage.getItem('location_id') ||
+          '';
+
+        if (locationId) {
+          localStorage.setItem('location_id', locationId);
+          await this.configService.loadConfig(locationId);
+        }
+
+        const destination = locationId === 'wLbWopWGch5Col0WyuJd' ? '/client-accounts' : '/dashboard';
+        this.router.navigate([destination]);
       },
       error: (err) => {
         console.error(err);
