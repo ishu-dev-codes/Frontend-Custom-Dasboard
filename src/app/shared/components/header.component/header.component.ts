@@ -1,5 +1,6 @@
 import { Component, EventEmitter, HostListener, inject, OnInit, Output } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { HttpService } from '../../../core/services/http.service';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { CommonModule } from '@angular/common';
@@ -9,6 +10,13 @@ import { Router } from '@angular/router';
 export interface DateRange {
   startDate: Date | null;
   endDate: Date | null;
+}
+
+interface BrandingResponse {
+  client_name: string;
+  location_id: string;
+  image_url: string;
+  id: number;
 }
 
 @Component({
@@ -21,6 +29,7 @@ export interface DateRange {
 export class HeaderComponent implements OnInit {
   readonly authService = inject(AuthService);
   readonly router = inject(Router);
+  private readonly http = inject(HttpService);
 
   @Output() dateRangeChanged = new EventEmitter<DateRange>();
 
@@ -31,17 +40,27 @@ export class HeaderComponent implements OnInit {
   datePresets = [
     { label: 'This Week', value: 'this_week' },
     { label: 'Last Week', value: 'last_week' },
+    { label: 'This Month', value: 'this_month' },
     { label: 'Last Month', value: 'last_month' },
     { label: 'Last 3 Months', value: 'last_3_months' },
+    { label: 'This Year', value: 'this_year' },
     { label: 'Last Year', value: 'last_year' },
     { label: 'Custom Range', value: 'custom' },
   ];
 
   selectedPreset = 'last_month';
-  customDateRange: Date[] | null = null;
+  calendarDateRange: Date[] | null = null;
+  showGoButton = false;
 
   ngOnInit() {
-    this.logoUrl = new URLSearchParams(window.location.search).get('logoUrl') || '';
+    const locationId = localStorage.getItem('location_id');
+    if (locationId) {
+      this.http.get<BrandingResponse>(`branding/${locationId}`).subscribe({
+        next: (res) => { this.logoUrl = res.image_url; },
+        error: () => { this.logoUrl = ''; },
+      });
+    }
+    this.syncCalendarToPreset();
     this.emitDateRange();
   }
 
@@ -60,145 +79,90 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.profileMenuOpen = false;
     this.authService.logout();
-
     this.router.navigate(['/login']);
   }
 
-  // getDateRange(): DateRange {
-  //   const now = new Date();
+  private calcPresetRange(preset: string): { startDate: Date; endDate: Date } | null {
+    const now = new Date();
 
-  //   switch (this.selectedPreset) {
-  //     case 'this_week': {
-  //       const start = new Date(now);
-  //       start.setDate(now.getDate() - now.getDay());
-  //       return { startDate: start, endDate: now };
-  //     }
-  //     case 'last_week': {
-  //       const start = new Date(now);
-  //       start.setDate(now.getDate() - now.getDay() - 7);
-  //       const end = new Date(start);
-  //       end.setDate(start.getDate() + 6);
-  //       return { startDate: start, endDate: end };
-  //     }
-  //     case 'last_month': {
-  //       const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  //       const end = new Date(now.getFullYear(), now.getMonth(), 0);
-  //       return { startDate: start, endDate: end };
-  //     }
-  //     case 'last_3_months': {
-  //       const start = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-  //       // const end = new Date(now.getFullYear(), now.getMonth() - 1, (now.getMonth() - 1));
-  //       return { startDate: start, endDate: now };
-  //     }
-  //     case 'last_year': {
-  //       const start = new Date(now.getFullYear() - 1, 0, 1);
-  //       const end = new Date(now.getFullYear() - 1, 11, 31);
-  //       return { startDate: start, endDate: end };
-  //     }
-  //     case 'custom': {
-  //       if (this.customDateRange?.length === 2) {
-  //         return { startDate: this.customDateRange[0], endDate: this.customDateRange[1] };
-  //       }
-  //       return { startDate: null, endDate: null };
-  //     }
-  //     default:
-  //       return { startDate: null, endDate: null };
-  //   }
-  // }
-getDateRange(): DateRange {
-  const now = new Date();
-
-  switch (this.selectedPreset) {
-
-    // ✅ THIS WEEK (Mon → Today)
-    case 'this_week': {
-      const start = new Date(now);
-
-      const day = now.getDay(); // 0 (Sun) → 6 (Sat)
-      const diff = (day === 0 ? -6 : 1 - day); // shift to Monday
-
-      start.setDate(now.getDate() + diff);
-
-      return { startDate: start, endDate: now };
-    }
-
-    // ✅ LAST WEEK (Mon → Sun)
-    case 'last_week': {
-      const currentDay = now.getDay();
-      const diffToMonday = (currentDay === 0 ? -6 : 1 - currentDay);
-
-      // Monday of current week
-      const thisWeekMonday = new Date(now);
-      thisWeekMonday.setDate(now.getDate() + diffToMonday);
-
-      // Last week Monday
-      const start = new Date(thisWeekMonday);
-      start.setDate(thisWeekMonday.getDate() - 7);
-
-      // Last week Sunday
-      const end = new Date(start);
-      end.setDate(start.getDate() + 6);
-
-      return { startDate: start, endDate: end };
-    }
-
-    // ✅ LAST MONTH (FULL)
-    case 'last_month': {
-      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const end = new Date(now.getFullYear(), now.getMonth(), 0);
-      return { startDate: start, endDate: end };
-    }
-
-    // ✅ LAST 3 MONTHS (ROLLING SAME DATE)
-    case 'last_3_months': {
-      const start = new Date(now);
-      start.setMonth(now.getMonth() - 3);
-
-      return { startDate: start, endDate: now };
-    }
-
-    // ✅ LAST YEAR (FULL)
-    case 'last_year': {
-      const start = new Date(now.getFullYear() - 1, 0, 1);
-      const end = new Date(now.getFullYear() - 1, 11, 31);
-      return { startDate: start, endDate: end };
-    }
-
-    // ✅ CUSTOM
-    case 'custom': {
-      if (this.customDateRange?.length === 2) {
-        return {
-          startDate: this.customDateRange[0],
-          endDate: this.customDateRange[1]
-        };
+    switch (preset) {
+      case 'this_week': {
+        const start = new Date(now);
+        const day = now.getDay();
+        start.setDate(now.getDate() + (day === 0 ? -6 : 1 - day));
+        return { startDate: start, endDate: now };
       }
-      return { startDate: null, endDate: null };
+      case 'last_week': {
+        const currentDay = now.getDay();
+        const thisMonday = new Date(now);
+        thisMonday.setDate(now.getDate() + (currentDay === 0 ? -6 : 1 - currentDay));
+        const start = new Date(thisMonday);
+        start.setDate(thisMonday.getDate() - 7);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return { startDate: start, endDate: end };
+      }
+      case 'this_month': {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        return { startDate: start, endDate: now };
+      }
+      case 'last_month': {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(now.getFullYear(), now.getMonth(), 0);
+        return { startDate: start, endDate: end };
+      }
+      case 'last_3_months': {
+        const start = new Date(now);
+        start.setMonth(now.getMonth() - 3);
+        return { startDate: start, endDate: now };
+      }
+      case 'this_year': {
+        const start = new Date(now.getFullYear(), 0, 1);
+        return { startDate: start, endDate: now };
+      }
+      case 'last_year': {
+        const start = new Date(now.getFullYear() - 1, 0, 1);
+        const end = new Date(now.getFullYear() - 1, 11, 31);
+        return { startDate: start, endDate: end };
+      }
+      default:
+        return null;
     }
-
-    default:
-      return { startDate: null, endDate: null };
   }
-}
-  getDateRangeDisplay(): string {
-    const fmt = (d: Date | null) =>
-      d ? d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '';
-    const dates = this.getDateRange();
-    return `${fmt(dates.startDate)} – ${fmt(dates.endDate)}`;
+
+  private syncCalendarToPreset() {
+    const range = this.calcPresetRange(this.selectedPreset);
+    if (range) {
+      this.calendarDateRange = [range.startDate, range.endDate];
+    }
+  }
+
+  getDateRange(): DateRange {
+    if (this.calendarDateRange?.length === 2 && this.calendarDateRange[0] && this.calendarDateRange[1]) {
+      return { startDate: this.calendarDateRange[0], endDate: this.calendarDateRange[1] };
+    }
+    return { startDate: null, endDate: null };
   }
 
   onPresetChange(_event: any) {
-    if (this.selectedPreset !== 'custom') {
-      const dates = this.getDateRange();
-      if (dates.startDate && dates.endDate) {
-        this.emitDateRange();
-      }
+    if (this.selectedPreset === 'custom') {
+      this.showGoButton = false;
+      return;
+    }
+    this.syncCalendarToPreset();
+    this.showGoButton = false;
+    this.emitDateRange();
+  }
+
+  onCalendarDateChange() {
+    if (this.calendarDateRange?.length === 2 && this.calendarDateRange[0] && this.calendarDateRange[1]) {
+      this.showGoButton = true;
     }
   }
 
-  onDateRangeChange() {
-    if (this.customDateRange?.length === 2 && this.customDateRange[0] && this.customDateRange[1]) {
-      this.emitDateRange();
-    }
+  onGoClick() {
+    this.showGoButton = false;
+    this.emitDateRange();
   }
 
   private emitDateRange() {

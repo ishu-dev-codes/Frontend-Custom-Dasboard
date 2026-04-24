@@ -203,12 +203,26 @@
   gap: 16px;
 }
 
+.cards-grid--lead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+
+  > * {
+    flex: 0 0 calc(25% - 12px);
+    height: 145px;
+  }
+}
+
 @media (max-width: 1024px) {
   .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .cards-grid--lead > * { flex: 0 0 calc(50% - 8px); }
 }
 
 @media (max-width: 600px) {
   .cards-grid { grid-template-columns: 1fr; }
+  .cards-grid--lead > * { flex: 0 0 100%; }
 
   .dashboard-header {
     flex-direction: column;

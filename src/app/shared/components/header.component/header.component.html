@@ -14,62 +14,58 @@
   </div>
 
   @if (showClientAccounts) {
-  <nav class="header-nav">
-    <!-- <a class="header-nav-link" [class.active]="router.url === '/dashboard'" (click)="router.navigate(['/dashboard'])">
-      <i class="pi pi-th-large"></i> Dashboard
-    </a> -->
+    <nav class="header-nav">
       <a class="header-nav-link" [class.active]="router.url === '/client-accounts'" (click)="router.navigate(['/client-accounts'])">
         <i class="pi pi-users"></i> Client Accounts
       </a>
     </nav>
   }
 
+
   <div class="header-controls">
-    @if (selectedPreset === 'custom') {
-      <div class="control-group" *ngIf="!showClientAccounts">
-        <label class="control-label">Custom Range</label>
-        <p-datepicker
-          [(ngModel)]="customDateRange"
-          selectionMode="range"
-          dateFormat="mm/dd/yy"
-          placeholder="Select date range"
-          class="header-datepicker"
-          (onSelect)="onDateRangeChange()"
+    @if (!showClientAccounts) {
+      <div class="control-group">
+        <label class="control-label">Date Range</label>
+        <div class="datepicker-go-row">
+          <p-datepicker
+            [(ngModel)]="calendarDateRange"
+            selectionMode="range"
+            dateFormat="mm/dd/yy"
+            placeholder="Select date range"
+            class="header-datepicker"
+            (onSelect)="onCalendarDateChange()"
+          />
+          @if (showGoButton) {
+            <button class="go-btn" (click)="onGoClick()">Go</button>
+          }
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Preset</label>
+        <p-select
+          [options]="datePresets"
+          [(ngModel)]="selectedPreset"
+          optionLabel="label"
+          optionValue="value"
+          class="header-select"
+          (onChange)="onPresetChange($event)"
         />
       </div>
-    } @else {
-      <div class="control-group" *ngIf="!showClientAccounts">
-        <label class="control-label">Period</label>
-        <div class="date-display">{{ getDateRangeDisplay() }}</div>
-      </div>
     }
-
-    <div class="control-group" *ngIf="!showClientAccounts">
-      <label class="control-label">Date Range</label>
-      <p-select
-        [options]="datePresets"
-        [(ngModel)]="selectedPreset"
-        optionLabel="label"
-        optionValue="value"
-        class="header-select"
-        (onChange)="onPresetChange($event)"
-      />
-    </div>
 
     <div class="profile-menu-wrapper">
-    <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
-      <i class="pi pi-user"></i>
-    </button>
-    @if (profileMenuOpen) {
-      <div class="profile-dropdown">
-        <button class="profile-dropdown-item logout-item" (click)="logout()">
-          <i class="pi pi-sign-out"></i>
-          <span>Logout</span>
-        </button>
-      </div>
-    }
+      <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
+        <i class="pi pi-user"></i>
+      </button>
+      @if (profileMenuOpen) {
+        <div class="profile-dropdown">
+          <button class="profile-dropdown-item logout-item" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      }
+    </div>
   </div>
-  </div>
-
- 
 </div>
