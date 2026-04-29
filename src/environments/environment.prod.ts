@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
     env: 'production',
-    BASE_URL: 'https://ghl-api.autsync.in'
+    BASE_URL: 'https://dash.rapidconvert.online'
 }
