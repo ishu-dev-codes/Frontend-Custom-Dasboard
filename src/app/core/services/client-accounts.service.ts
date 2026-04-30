@@ -10,7 +10,13 @@ export interface ClientAccount {
   ad_account_name: string;
 }
 
-export type ClientAccountPayload = Omit<ClientAccount, 'id'>;
+export interface ClientAccountPayload {
+  client_name: string;
+  location_id: string;
+  ad_account_id: string;
+  ad_account_name: string;
+  token?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ClientAccountsService {

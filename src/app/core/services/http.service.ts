@@ -36,6 +36,13 @@ export class HttpService {
     return this.http.delete<T>(`${this.baseUrl}/${endpoint}`);
   }
 
+  // POST with application/x-www-form-urlencoded body
+  postForm<T>(endpoint: string, body: string): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, body, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  }
+
   // Query Params Builder
   private buildParams(params?: any): HttpParams {
     let httpParams = new HttpParams();

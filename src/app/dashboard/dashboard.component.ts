@@ -8,10 +8,12 @@ import {
 import { StatCardComponent, StatCardData } from '../components/stat-card/stat-card.component';
 import { RoiCardComponent, RoiCardData } from '../components/roi-card/roi-card.component';
 import { DashboardService, SbxLeadsResponse } from '../core/services/dashboard.service';
+import { ConfigService, STORAGE_KEYS } from '../core/services/config.service';
 import { SkeletonCard } from '../shared/components/skeleton-card/skeleton-card.component';
-import { catchError, EMPTY, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, EMPTY, from, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent, DateRange } from '../shared/components/header.component/header.component';
+import { ActivatedRoute } from '@angular/router';
 
 type ColumnDef = { header: string; field: string; extractor?: (v: any) => string };
 
@@ -33,6 +35,8 @@ type ColumnDef = { header: string; field: string; extractor?: (v: any) => string
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
+  private readonly configService = inject(ConfigService);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly metricsRefresh$ = new Subject<{ start?: string; end?: string }>();
   private readonly destroy$ = new Subject<void>();
@@ -44,19 +48,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   marketingCards: GradientCardData[] = [];
   patientCards: StatCardData[] = [];
   roiCards: RoiCardData[] = [];
+  locationId!: string;
+
 
   private readonly nonClickableMarketing = new Set(['avgCpl']);
   private readonly nonClickableRoi = new Set(['returnOnAdSpend', 'costPerAcquisition']);
 
   ngOnInit() {
+    const params = this.route.snapshot.params as { locationId: string };
+
+    if (params.locationId) {
+      this.locationId = params.locationId;
+      localStorage.setItem(STORAGE_KEYS.LOCATION_ID, this.locationId);
+    }
+
     this.metricsRefresh$.pipe(
       switchMap(({ start, end }) => {
         this.isLoading = true;
-        return forkJoin([
-          this.dashboardService.getMarketingMetrics(start, end),
-          this.dashboardService.getLeadConversionMetrics(start, end),
-          this.dashboardService.getCaseAcceptanceMetrics(start, end),
-        ]).pipe(
+        return from(this.configService.loadConfig(this.locationId)).pipe(
+          switchMap(() => forkJoin([
+            this.dashboardService.getMarketingMetrics(this.locationId, start, end),
+            this.dashboardService.getLeadConversionMetrics(this.locationId, start, end),
+            this.dashboardService.getCaseAcceptanceMetrics(this.locationId, start, end),
+          ])),
           catchError(err => {
             this.isLoading = false;
             console.error('Metrics load failed:', err);
@@ -95,19 +109,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private currentModalLoader: ((page: number, pageSize?: number) => void) | null = null;
 
+  // private readonly commonColumnDefs: ColumnDef[] = [
+  //   { header: 'Name',       field: 'name' },
+  //   { header: 'Value',      field: 'monetaryValue' },
+  //   { header: 'Status',     field: 'status' },
+  //   { header: 'Source',     field: 'source' },
+  //   { header: 'Created At', field: 'createdAt',
+  //     extractor: v => v ? new Date(v).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '' },
+  //   { header: 'Contact',    field: 'contact',
+  //     extractor: v => v?.name ?? v?.email ?? '' },
+  //   { header: 'Tags',       field: 'tags',
+  //     extractor: v => Array.isArray(v) ? v.join(', ') : (v ?? '') },
+  //   { header: 'Ad Source',  field: 'attribution',
+  //     extractor: v => v?.adSource ?? '' },
+  // ];
+
   private readonly commonColumnDefs: ColumnDef[] = [
-    { header: 'Name',       field: 'name' },
-    { header: 'Value',      field: 'monetaryValue' },
-    { header: 'Status',     field: 'status' },
-    { header: 'Source',     field: 'source' },
-    { header: 'Created At', field: 'createdAt',
+    { header: 'Opportunity Name', field: 'name' },
+    { header: 'Contact Name',         field: 'contact',extractor: v => v?.name ?? '' },
+    { header: 'Phone number',         field: 'contact',extractor: v => v?.phone ?? '' },
+    { header: 'Lead Value',   field: 'monetaryValue' },
+    { header: 'Pipeline Stage',  field: 'pipelineStage' },
+    { header: 'Status',           field: 'status' , },
+       { header: 'Created At', field: 'createdAt',
       extractor: v => v ? new Date(v).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '' },
-    { header: 'Contact',    field: 'contact',
-      extractor: v => v?.name ?? v?.email ?? '' },
-    { header: 'Tags',       field: 'tags',
-      extractor: v => Array.isArray(v) ? v.join(', ') : (v ?? '') },
-    { header: 'Ad Source',  field: 'attribution',
-      extractor: v => v?.adSource ?? '' },
+    { header: 'Tags',           field: 'tags', extractor: v => Array.isArray(v) ? v.join(', ') : (v ?? '') },
+    { header: 'Days in Stage',           field: 'daysInStage' , },
+    { header: 'UTM Campaign (First)',   field: 'attribution', extractor: v => v?.campaign ?? '' },
+    { header: 'UTM Medium (First)',          field: 'attribution', extractor: v => v?.medium ?? ''},
+    { header: 'UTM Content (First)',           field: 'attribution', extractor: v => v?.content ?? '' },
+    { header: 'UTM Source (First)',          field: 'attribution', extractor: v => v?.source ?? ''},
   ];
 
   private readonly metaCampaignColumnDefs: ColumnDef[] = [
@@ -175,6 +206,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private loadPaginatedModal(cardId: string, page: number, pageSize = 10) {
     const params = {
+      location_id: this.locationId,
       start_date: this.activeRange.start ?? '',
       end_date:   this.activeRange.end   ?? '',
       page,

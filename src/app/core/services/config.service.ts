@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
-const FALLBACK_AD_ACCOUNT_ID = '50422357';
-
 export const STORAGE_KEYS = {
   LOCATION_ID: 'location_id',
   AD_ACCOUNT_ID: 'ad_account_id',
@@ -12,11 +10,18 @@ export const STORAGE_KEYS = {
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
   private configUrl = `${environment.BASE_URL}/admin/config`;
+  private cachedLocationId: string | null = null;
+  private configPromise: Promise<void> | null = null;
 
   constructor(private http: HttpClient) {}
 
   loadConfig(locationId: string): Promise<void> {
-    return new Promise((resolve) => {
+    if (this.cachedLocationId === locationId && this.configPromise) {
+      return this.configPromise;
+    }
+
+    this.cachedLocationId = locationId;
+    this.configPromise = new Promise((resolve) => {
       this.http
         .get<{ location_id: string | null; ad_account_id: string | null }>(
           this.configUrl,
@@ -33,5 +38,7 @@ export class ConfigService {
           },
         });
     });
+
+    return this.configPromise;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpService } from '../../../core/services/http.service';
 import { Select } from 'primeng/select';
@@ -31,11 +31,15 @@ export class HeaderComponent implements OnInit {
   readonly router = inject(Router);
   private readonly http = inject(HttpService);
 
+  @Input() showFilters = true;
   @Output() dateRangeChanged = new EventEmitter<DateRange>();
 
   profileMenuOpen = false;
   logoUrl = '';
-  readonly showClientAccounts = localStorage.getItem('location_id') === 'wLbWopWGch5Col0WyuJd';
+
+  get showClientAccounts(): boolean {
+    return this.router.url === '/client-accounts';
+  }
 
   datePresets = [
     { label: 'This Week', value: 'this_week' },

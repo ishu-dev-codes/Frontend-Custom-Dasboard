@@ -3,17 +3,37 @@
 
     <h2>Welcome</h2>
 
+    <div class="field">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        [(ngModel)]="username"
+        placeholder="Enter username"
+        [disabled]="loading"
+        (keyup.enter)="login()"
+      />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        [(ngModel)]="password"
+        placeholder="Enter password"
+        [disabled]="loading"
+        (keyup.enter)="login()"
+      />
+    </div>
+
     <button (click)="login()" [disabled]="loading">
-      {{ loading ? 'Redirecting...' : 'Continue with GHL' }}
+      {{ loading ? 'Signing in...' : 'Sign In' }}
     </button>
 
-    <p *ngIf="error" class="error">
-      {{ error }}
-    </p>
-
-    <p *ngIf="loading" class="info">
-      Redirecting to secure login...
-    </p>
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
 
   </div>
 </div>

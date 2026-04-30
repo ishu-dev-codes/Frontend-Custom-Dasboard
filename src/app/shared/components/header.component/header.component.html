@@ -1,4 +1,4 @@
-<div class="dashboard-header" *ngIf="authService.authState$ | async">
+<div class="dashboard-header">
   <div class="header-logo">
     @if (logoUrl) {
       <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
@@ -13,17 +13,8 @@
     <h3>RAPIDConvert Dashboard</h3>
   </div>
 
-  @if (showClientAccounts) {
-    <nav class="header-nav">
-      <a class="header-nav-link" [class.active]="router.url === '/client-accounts'" (click)="router.navigate(['/client-accounts'])">
-        <i class="pi pi-users"></i> Client Accounts
-      </a>
-    </nav>
-  }
-
-
   <div class="header-controls">
-    @if (!showClientAccounts) {
+    @if (showFilters) {
       <div class="control-group">
         <label class="control-label">Date Range</label>
         <div class="datepicker-go-row">
@@ -54,18 +45,26 @@
       </div>
     }
 
-    <div class="profile-menu-wrapper">
-      <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
-        <i class="pi pi-user"></i>
-      </button>
-      @if (profileMenuOpen) {
-        <div class="profile-dropdown">
-          <button class="profile-dropdown-item logout-item" (click)="logout()">
-            <i class="pi pi-sign-out"></i>
-            <span>Logout</span>
-          </button>
-        </div>
-      }
-    </div>
+    @if (showClientAccounts) {
+      <nav class="header-nav">
+        <a class="header-nav-link active">
+          <i class="pi pi-users"></i> Client Accounts
+        </a>
+      </nav>
+
+      <div class="profile-menu-wrapper">
+        <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
+          <i class="pi pi-user"></i>
+        </button>
+        @if (profileMenuOpen) {
+          <div class="profile-dropdown">
+            <button class="profile-dropdown-item logout-item" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
   </div>
 </div>

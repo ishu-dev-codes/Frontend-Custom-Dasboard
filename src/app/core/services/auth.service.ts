@@ -5,7 +5,6 @@ import { HttpService } from './http.service';
 
 export interface AuthTokenResponse {
   access_token: string;
-  refresh_token: string;
   token_type?: string;
   expires_in?: number;
   location_id?: string;
@@ -15,7 +14,6 @@ export interface AuthTokenResponse {
 
 export const AUTH_STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
-  REFRESH_TOKEN: 'refresh_token',
   TOKEN_DATA: 'token_data',
   EXPIRY: 'token_expiry',
 };
@@ -24,25 +22,22 @@ export const AUTH_STORAGE_KEYS = {
 export class AuthService {
   private accessToken: string | null = null;
 
-
   private authState = new BehaviorSubject<boolean>(this.hasValidToken());
   authState$ = this.authState.asObservable();
 
   constructor(private http: HttpService) {
-    // App start pe auth state set
     this.authState.next(this.hasValidToken());
   }
 
-
-  getLoginUrl(): Observable<{ auth_url: string }> {
-    return this.http.get<{ auth_url: string }>('auth/login');
-  }
-
-
-  exchangeCode(code: string): Observable<AuthTokenResponse> {
-    return this.http
-      .get<AuthTokenResponse>(`auth/callback?code=${code}`)
-      .pipe(tap((data) => this.saveTokens(data)));
+  loginWithCredentials(username: string, password: string): Observable<AuthTokenResponse> {
+    const params = new URLSearchParams();
+    params.set('grant_type', 'password');
+    params.set('username', username);
+    params.set('password', password);
+    params.set('scope', '');
+    return this.http.postForm<AuthTokenResponse>('auth/login', params.toString()).pipe(
+      tap(data => this.saveTokens(data))
+    );
   }
 
   private saveTokens(data: AuthTokenResponse): void {
@@ -50,7 +45,6 @@ export class AuthService {
     this.accessToken = data.access_token;
 
     localStorage.setItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN, data.access_token);
-    localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, data.refresh_token);
     localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN_DATA, JSON.stringify(data));
 
     if (data.location_id) {
@@ -62,20 +56,15 @@ export class AuthService {
 
   private setExpiry(token: string) {
     let expiry: number;
-
- 
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        expiry = payload.exp * 1000; // exp is in seconds
-      } catch {
-     
-        expiry = Date.now() + 60 * 60 * 1000;
-      }
-    // }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      expiry = payload.exp * 1000;
+    } catch {
+      expiry = Date.now() + 60 * 60 * 1000;
+    }
     localStorage.setItem(AUTH_STORAGE_KEYS.EXPIRY, expiry.toString());
   }
 
-  // Get access token (with caching)
   getAccessToken(): string | null {
     if (!this.accessToken) {
       this.accessToken = localStorage.getItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
@@ -94,22 +83,6 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.hasValidToken();
-  }
-
-  refreshToken(): Observable<AuthTokenResponse> {
-    const refresh_token = localStorage.getItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN);
-    const tokenData = localStorage.getItem(AUTH_STORAGE_KEYS.TOKEN_DATA);
-    const userType = JSON.parse(tokenData ?? '').userType || '';
-    return this.http
-      .post<AuthTokenResponse>('auth/refresh', {
-        refresh_token,
-        userType,
-      })
-      .pipe(
-        tap((res) => {
-          this.saveTokens(res);
-        }),
-      );
   }
 
   logout(): void {

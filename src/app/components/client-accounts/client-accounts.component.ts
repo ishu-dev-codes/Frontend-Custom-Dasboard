@@ -52,6 +52,7 @@ export class ClientAccountsComponent implements OnInit {
     location_id: '',
     ad_account_id: '',
     ad_account_name: '',
+    token: '',
   };
 
   ngOnInit() {
@@ -74,7 +75,7 @@ export class ClientAccountsComponent implements OnInit {
 
   openCreate() {
     this.editingId = null;
-    this.form = { client_name: '', location_id: '', ad_account_id: '', ad_account_name: '' };
+    this.form = { client_name: '', location_id: '', ad_account_id: '', ad_account_name: '', token: '' };
     this.dialogVisible = true;
   }
 
@@ -85,6 +86,7 @@ export class ClientAccountsComponent implements OnInit {
       location_id: account.location_id,
       ad_account_id: account.ad_account_id,
       ad_account_name: account.ad_account_name,
+      token: '',
     };
     this.dialogVisible = true;
   }
@@ -96,9 +98,13 @@ export class ClientAccountsComponent implements OnInit {
     }
 
     this.isSaving = true;
+    const payload: ClientAccountPayload = { ...this.form };
+    if (!payload.token?.trim()) {
+      delete payload.token;
+    }
     const request$ = this.editingId !== null
-      ? this.service.update(this.editingId, this.form)
-      : this.service.create(this.form);
+      ? this.service.update(this.editingId, payload)
+      : this.service.create(payload);
 
     request$.subscribe({
       next: () => {

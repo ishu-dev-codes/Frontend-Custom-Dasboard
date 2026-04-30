@@ -18,6 +18,39 @@
       color: #333;
     }
 
+    .field {
+      margin-bottom: 1rem;
+      text-align: left;
+
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: #555;
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+
+        &:focus {
+          border-color: #4f46e5;
+        }
+
+        &:disabled {
+          background: #f3f4f6;
+          cursor: not-allowed;
+        }
+      }
+    }
+
     button {
       width: 100%;
       padding: 10px;

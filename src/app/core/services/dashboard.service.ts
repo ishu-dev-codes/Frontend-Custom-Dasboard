@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { HttpService } from "./http.service";
-import { AuthService } from "./auth.service";
 
 export interface SbxLeadsResponse {
   metric_name: string;
@@ -15,6 +14,7 @@ export interface SbxLeadsResponse {
 }
 
 export interface SbxLeadsParams {
+  location_id: string;
   start_date: string;
   end_date: string;
   page?: number;
@@ -24,21 +24,20 @@ export interface SbxLeadsParams {
 @Injectable({
     providedIn: 'root'
 })
-export class DashboardService{
-    constructor(private http: HttpService, private authService: AuthService) {}
+export class DashboardService {
+    constructor(private http: HttpService) {}
 
-
-  getMarketingMetrics(startDate?: string, endDate?: string): Observable<any> {
+  getMarketingMetrics(locationId: string, startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/marketing-metrics/cards', {
-      access_token: this.authService.getAccessToken(),
+      location_id: locationId,
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });
   }
 
-  getCaseAcceptanceMetrics(startDate?: string, endDate?: string): Observable<any> {
+  getCaseAcceptanceMetrics(locationId: string, startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/case-acceptance-metrics/cards', {
-      access_token: this.authService.getAccessToken(),
+      location_id: locationId,
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });
@@ -46,7 +45,7 @@ export class DashboardService{
 
   getTotalSbxLeads(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/total-sbx-leads', {
-      access_token: this.authService.getAccessToken(),
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -56,7 +55,7 @@ export class DashboardService{
 
   getLeadsAbandoned(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-abandoned', {
-      access_token: this.authService.getAccessToken(),
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -66,7 +65,7 @@ export class DashboardService{
 
   getLeadsBooked(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-booked', {
-      access_token: this.authService.getAccessToken(),
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -76,7 +75,7 @@ export class DashboardService{
 
   getLeadsWon(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-won', {
-      access_token: this.authService.getAccessToken(),
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -86,7 +85,7 @@ export class DashboardService{
 
   getLeadsFta(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/leads-fta', {
-      access_token: this.authService.getAccessToken(),
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -94,16 +93,17 @@ export class DashboardService{
     });
   }
 
-  getLeadConversionMetrics(startDate?: string, endDate?: string): Observable<any> {
+  getLeadConversionMetrics(locationId: string, startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/lead-conversion-metrics/cards', {
-      access_token: this.authService.getAccessToken(),
+      location_id: locationId,
       ...(startDate && { start_date: startDate }),
       ...(endDate   && { end_date:   endDate   }),
     });
   }
 
-  getMetaCampaigns(params: { start_date: string; end_date: string; page?: number; page_size?: number }): Observable<SbxLeadsResponse> {
+  getMetaCampaigns(params: { location_id: string; start_date: string; end_date: string; page?: number; page_size?: number }): Observable<SbxLeadsResponse> {
     return this.http.get<SbxLeadsResponse>('metrics/meta-campaigns', {
+      location_id: params.location_id,
       start_date: params.start_date,
       end_date: params.end_date,
       page: params.page ?? 1,
@@ -111,4 +111,3 @@ export class DashboardService{
     });
   }
 }
-

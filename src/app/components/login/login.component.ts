@@ -1,45 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent implements OnInit {
-
+export class LoginComponent {
+  username = '';
+  password = '';
   loading = false;
   error: string | null = null;
 
-  constructor(private authService: AuthService) {}
-
-  ngOnInit(): void {
-  
-  }
+  constructor(private authService: AuthService, private router: Router) {}
 
   login(): void {
+    if (!this.username.trim() || !this.password) {
+      this.error = 'Username and password are required';
+      return;
+    }
+
     this.loading = true;
     this.error = null;
 
-    this.authService.getLoginUrl().subscribe({
-      next: (res) => {
-        if (res?.auth_url) {
-          window.location.href = res.auth_url;
-        } else {
-          this.handleError('Invalid login URL');
-        }
+    this.authService.loginWithCredentials(this.username.trim(), this.password).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/client-accounts']);
       },
       error: () => {
-        this.handleError('Failed to initiate login');
+        this.loading = false;
+        this.error = 'Invalid username or password';
       }
     });
-  }
-
-  private handleError(message: string) {
-    this.loading = false;
-    this.error = message;
   }
 }

@@ -12,10 +12,10 @@ export class LoginGuard implements CanActivate {
 
   canActivate(): boolean {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']); // already logged in
+      this.router.navigate(['/client-accounts']);
       return false;
     }
 
-    return true; // allow login page
+    return true;
   }
 }

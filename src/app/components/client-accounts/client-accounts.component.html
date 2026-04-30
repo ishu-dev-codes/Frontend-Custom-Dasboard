@@ -1,4 +1,4 @@
-<app-header />
+<app-header [showFilters]="false" />
 
 <p-toast />
 <p-confirmDialog />
@@ -80,6 +80,19 @@
     <div class="ca-field">
       <label for="ad_account_name">Ad Account Name</label>
       <input pInputText id="ad_account_name" [(ngModel)]="form.ad_account_name" placeholder="Enter ad account name" class="w-full" />
+    </div>
+
+    <div class="ca-field">
+      <label for="token">Token</label>
+      <input
+        pInputText
+        id="token"
+        type="password"
+        [(ngModel)]="form.token"
+        [placeholder]="editingId !== null ? 'Leave blank to keep existing token' : 'Enter token'"
+        class="w-full"
+        autocomplete="new-password"
+      />
     </div>
   </div>
 
