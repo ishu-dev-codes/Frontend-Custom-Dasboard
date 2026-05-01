@@ -1,11 +1,13 @@
 <div class="dashboard-header">
   <div class="header-logo">
-    @if (logoUrl) {
-      <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
-    } @else {
-      <div class="logo-placeholder">
-        <img src="svgs/custom.svg"/>
-      </div>
+    @if (!showClientAccounts) {
+      @if (logoUrl) {
+        <img [src]="logoUrl" alt="Client Logo" class="logo-img" />
+      } @else {
+        <div class="logo-placeholder">
+          <img src="svgs/custom.svg" />
+        </div>
+      }
     }
   </div>
 
@@ -46,11 +48,11 @@
     }
 
     @if (showClientAccounts) {
-      <nav class="header-nav">
+      <!-- <nav class="header-nav">
         <a class="header-nav-link active">
           <i class="pi pi-users"></i> Client Accounts
         </a>
-      </nav>
+      </nav> -->
 
       <div class="profile-menu-wrapper">
         <button class="profile-btn" (click)="toggleProfileMenu()" [class.active]="profileMenuOpen">
