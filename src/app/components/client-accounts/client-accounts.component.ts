@@ -1,31 +1,38 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { ClientAccountsService } from '../../core/services/client-accounts.service';
 import {
-  ClientAccountsService,
+  adAccountIdValidator,
   ClientAccount,
   ClientAccountPayload,
-} from '../../core/services/client-accounts.service';
+  ClientStatusKey,
+  MAX_STAGES,
+  PipelineStages,
+  STATUS_KEYS,
+} from '../../core/models/client-account.model';
 import { HeaderComponent } from '../../shared/components/header.component/header.component';
 
 @Component({
   selector: 'app-client-accounts',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
+ CommonModule,
+    ReactiveFormsModule,
     TableModule,
     ButtonModule,
     DialogModule,
     InputTextModule,
+    MultiSelectModule,
     ConfirmDialogModule,
     ToastModule,
     HeaderComponent,
@@ -38,6 +45,7 @@ export class ClientAccountsComponent implements OnInit {
   private readonly service = inject(ClientAccountsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
   readonly router = inject(Router);
 
   accounts: ClientAccount[] = [];
@@ -47,22 +55,67 @@ export class ClientAccountsComponent implements OnInit {
   isSaving = false;
   editingId: number | null = null;
 
-  form: ClientAccountPayload = {
-    client_name: '',
-    location_id: '',
-    ad_account_id: '',
-    ad_account_name: '',
-    token: '',
-  };
+  readonly statusOptions = STATUS_KEYS.map((k) => ({ label: k, value: k }));
+  readonly maxStages = MAX_STAGES;
+  readonly statusKeys = STATUS_KEYS;
+
+  form!: FormGroup;
 
   ngOnInit() {
+    this.initForm();
     this.loadAccounts();
   }
+
+  private initForm() {
+    this.form = this.fb.group({
+      client_name: ['', Validators.required],
+      location_id: ['', Validators.required],
+      ad_account_id: ['', adAccountIdValidator],
+      ad_account_name: [''],
+      token: [''],
+      selectedStatuses: [[]],
+      stages: this.fb.group({
+        Booked: this.fb.array([]),
+        Won: this.fb.array([]),
+        Cancelled: this.fb.array([]),
+      }),
+    });
+  }
+
+  private resetForm() {
+    this.form.reset({
+      client_name: '',
+      location_id: '',
+      ad_account_id: '',
+      ad_account_name: '',
+      token: '',
+      selectedStatuses: [],
+    });
+    for (const key of STATUS_KEYS) {
+      this.getStageArray(key).clear();
+    }
+  }
+
+  // --- FormArray helpers ---
+
+  getStageArray(status: ClientStatusKey): FormArray {
+    return (this.form.get('stages') as FormGroup).get(status) as FormArray;
+  }
+
+  getStageControls(status: ClientStatusKey): AbstractControl[] {
+    return this.getStageArray(status).controls;
+  }
+
+  get selectedStatuses(): ClientStatusKey[] {
+    return this.form.get('selectedStatuses')?.value ?? [];
+  }
+
+  // --- Account loading ---
 
   loadAccounts() {
     this.isLoading = true;
     this.service.getAll().subscribe({
-      next: data => {
+      next: (data) => {
         this.accounts = data;
         this.isLoading = false;
       },
@@ -73,56 +126,166 @@ export class ClientAccountsComponent implements OnInit {
     });
   }
 
+  // --- Dialog open ---
+
   openCreate() {
     this.editingId = null;
-    this.form = { client_name: '', location_id: '', ad_account_id: '', ad_account_name: '', token: '' };
+    this.resetForm();
     this.dialogVisible = true;
   }
 
   openEdit(account: ClientAccount) {
     this.editingId = account.id;
-    this.form = {
+    this.resetForm();
+
+    const selected: ClientStatusKey[] = [];
+    const ps: PipelineStages = account.pipeline_stages ?? {};
+
+    for (const key of STATUS_KEYS) {
+      const stages = ps[key];
+      if (stages && stages.length > 0) {
+        selected.push(key);
+        for (const stage of stages) {
+          this.getStageArray(key).push(this.fb.control(stage, Validators.required));
+        }
+      }
+    }
+
+    this.form.patchValue({
       client_name: account.client_name,
       location_id: account.location_id,
       ad_account_id: account.ad_account_id,
       ad_account_name: account.ad_account_name,
       token: '',
-    };
+      selectedStatuses: selected,
+    });
+
     this.dialogVisible = true;
   }
 
-  saveAccount() {
-    if (!this.form.client_name.trim() || !this.form.location_id.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Client name and Location ID are required' });
-      return;
-    }
+  // --- Status change ---
 
-    this.isSaving = true;
-    const payload: ClientAccountPayload = { ...this.form };
-    if (!payload.token?.trim()) {
-      delete payload.token;
+  onStatusChange() {
+    const selected: ClientStatusKey[] = this.form.get('selectedStatuses')?.value ?? [];
+    for (const key of STATUS_KEYS) {
+      const arr = this.getStageArray(key);
+      if (selected.includes(key)) {
+        if (arr.length === 0) arr.push(this.fb.control('', Validators.required));
+      } else {
+        arr.clear();
+      }
     }
-    const request$ = this.editingId !== null
-      ? this.service.update(this.editingId, payload)
-      : this.service.create(payload);
-
-    request$.subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.dialogVisible = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: this.editingId !== null ? 'Account updated' : 'Account created',
-        });
-        this.loadAccounts();
-      },
-      error: () => {
-        this.isSaving = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save account' });
-      },
-    });
   }
+
+  // --- Stage management ---
+
+  addStage(status: ClientStatusKey) {
+    const arr = this.getStageArray(status);
+    if (arr.length < MAX_STAGES) {
+      arr.push(this.fb.control('', Validators.required));
+    }
+  }
+
+  removeStage(status: ClientStatusKey, index: number) {
+    const arr = this.getStageArray(status);
+    arr.removeAt(index);
+    if (arr.length === 0) {
+      arr.push(this.fb.control('', Validators.required));
+    }
+  }
+
+  // --- Validation helpers ---
+
+  isFieldInvalid(fieldName: string): boolean {
+    const ctrl = this.form.get(fieldName);
+    return !!(ctrl && ctrl.invalid && ctrl.touched);
+  }
+
+  getFieldError(fieldName: string): string {
+    const ctrl = this.form.get(fieldName);
+    if (!ctrl || !ctrl.touched || !ctrl.errors) return '';
+    if (ctrl.errors['required']) return `${this.fieldLabel(fieldName)} is required`;
+    if (ctrl.errors['adAccountIdFormat']) return 'Must follow format: act_1234567890';
+    return '';
+  }
+
+  isStageInvalid(status: ClientStatusKey, index: number): boolean {
+    const ctrl = this.getStageArray(status).at(index);
+    return !!(ctrl && ctrl.invalid && ctrl.touched);
+  }
+
+  stageGroupError(status: ClientStatusKey): string {
+    const arr = this.getStageArray(status);
+    const anyTouched = arr.controls.some(c => c.touched);
+    if (!anyTouched) return '';
+    const allEmpty = arr.controls.every(c => !c.value?.trim());
+    return allEmpty ? 'At least one stage name is required' : '';
+  }
+
+  private fieldLabel(name: string): string {
+    const labels: Record<string, string> = {
+      client_name: 'Client name',
+      location_id: 'Location ID',
+    };
+    return labels[name] ?? name;
+  }
+  
+saveAccount() {
+  this.form.markAllAsTouched();
+  if (this.form.invalid) return;
+
+  const raw = this.form.value;
+
+  const pipeline_stages: { Booked: string[]; Won: string[]; Cancelled: string[] } = {
+    Booked: [],
+    Won: [],
+    Cancelled: [],
+  };
+
+  for (const key of STATUS_KEYS) {
+    const payloadKey = key as 'Booked' | 'Won' | 'Cancelled';
+    const selected: ClientStatusKey[] = raw.selectedStatuses ?? [];
+    if (selected.includes(key)) {
+      pipeline_stages[payloadKey] = (this.getStageArray(key).value as string[]).filter(s => s?.trim());
+    } else {
+      pipeline_stages[payloadKey] = [];
+    }
+  }
+
+  const payload: ClientAccountPayload = {
+    client_name: raw.client_name,
+    location_id: raw.location_id,
+    ad_account_id: raw.ad_account_id,
+    ad_account_name: raw.ad_account_name,
+    pipeline_stages,
+  };
+
+  if (raw.token?.trim()) {
+    payload.token = raw.token;
+  }
+
+  this.isSaving = true;
+  const request$ = this.editingId !== null
+    ? this.service.update(this.editingId, payload)
+    : this.service.create(payload);
+
+  request$.subscribe({
+    next: () => {
+      this.isSaving = false;
+      this.dialogVisible = false;
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: this.editingId !== null ? 'Account updated' : 'Account created',
+      });
+      this.loadAccounts();
+    },
+    error: () => {
+      this.isSaving = false;
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save account' });
+    },
+  });
+}
 
   confirmDelete(account: ClientAccount) {
     this.confirmationService.confirm({
@@ -137,13 +300,24 @@ export class ClientAccountsComponent implements OnInit {
   private deleteAccount(id: number) {
     this.service.delete(id).subscribe({
       next: () => {
-        this.accounts = this.accounts.filter(a => a.id !== id);
+        this.accounts = this.accounts.filter((a) => a.id !== id);
         this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Account removed' });
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete account' });
       },
     });
+  }
+
+  // --- Utilities ---
+
+  stageSummary(account: ClientAccount): string {
+    const ps = account.pipeline_stages;
+    if (!ps) return '—';
+    const parts = STATUS_KEYS.map((key) => ({ key, count: ps[key]?.length ?? 0 }))
+      .filter(({ count }) => count > 0)
+      .map(({ key, count }) => `${key}: ${count}`);
+    return parts.length > 0 ? parts.join(' · ') : '—';
   }
 
   get dialogTitle(): string {

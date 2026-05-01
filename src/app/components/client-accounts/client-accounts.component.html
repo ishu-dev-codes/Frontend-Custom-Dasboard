@@ -16,7 +16,7 @@
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
     styleClass="p-datatable-sm p-datatable-striped"
-    [tableStyle]="{ 'min-width': '60rem' }"
+    [tableStyle]="{ 'min-width': '72rem' }"
   >
     <ng-template pTemplate="header">
       <tr>
@@ -25,6 +25,7 @@
         <th pSortableColumn="ad_account_name">Ad Account Name <p-sortIcon field="ad_account_name" /></th>
         <th>Ad Account ID</th>
         <th>Location ID</th>
+        <th>Pipeline Stages</th>
         <th style="width:10%">Actions</th>
       </tr>
     </ng-template>
@@ -36,6 +37,7 @@
         <td>{{ account.ad_account_name }}</td>
         <td class="ca-mono">{{ account.ad_account_id }}</td>
         <td class="ca-mono">{{ account.location_id }}</td>
+        <td class="ca-stages-summary">{{ stageSummary(account) }}</td>
         <td>
           <div class="ca-actions">
             <button pButton icon="pi pi-pencil" class="p-button-sm p-button-text p-button-secondary" (click)="openEdit(account)" title="Edit"></button>
@@ -47,7 +49,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="ca-empty">No client accounts found.</td>
+        <td colspan="7" class="ca-empty">No client accounts found.</td>
       </tr>
     </ng-template>
   </p-table>
@@ -57,29 +59,60 @@
   [(visible)]="dialogVisible"
   [header]="dialogTitle"
   [modal]="true"
-  [style]="{ width: '480px' }"
+  [style]="{ width: '540px' }"
   [draggable]="false"
   [resizable]="false"
 >
-  <div class="ca-form">
+  <div class="ca-form" [formGroup]="form">
+
     <div class="ca-field">
       <label for="client_name">Client Name <span class="ca-required">*</span></label>
-      <input pInputText id="client_name" [(ngModel)]="form.client_name" placeholder="Enter client name" class="w-full" />
+      <input
+        pInputText
+        id="client_name"
+        formControlName="client_name"
+        placeholder="Enter client name"
+        class="w-full"
+        [class.p-invalid]="isFieldInvalid('client_name')"
+      />
+      @if (isFieldInvalid('client_name')) {
+        <small class="ca-error">{{ getFieldError('client_name') }}</small>
+      }
     </div>
 
     <div class="ca-field">
       <label for="location_id">Location ID <span class="ca-required">*</span></label>
-      <input pInputText id="location_id" [(ngModel)]="form.location_id" placeholder="Enter location ID" class="w-full" />
+      <input
+        pInputText
+        id="location_id"
+        formControlName="location_id"
+        placeholder="Enter location ID"
+        class="w-full"
+        [class.p-invalid]="isFieldInvalid('location_id')"
+      />
+      @if (isFieldInvalid('location_id')) {
+        <small class="ca-error">{{ getFieldError('location_id') }}</small>
+      }
     </div>
 
     <div class="ca-field">
       <label for="ad_account_id">Ad Account ID</label>
-      <input pInputText id="ad_account_id" [(ngModel)]="form.ad_account_id" placeholder="e.g. act_1234567890" class="w-full" />
+      <input
+        pInputText
+        id="ad_account_id"
+        formControlName="ad_account_id"
+        placeholder="e.g. act_1234567890"
+        class="w-full"
+        [class.p-invalid]="isFieldInvalid('ad_account_id')"
+      />
+      @if (isFieldInvalid('ad_account_id')) {
+        <small class="ca-error">{{ getFieldError('ad_account_id') }}</small>
+      }
     </div>
 
     <div class="ca-field">
       <label for="ad_account_name">Ad Account Name</label>
-      <input pInputText id="ad_account_name" [(ngModel)]="form.ad_account_name" placeholder="Enter ad account name" class="w-full" />
+      <input pInputText id="ad_account_name" formControlName="ad_account_name" placeholder="Enter ad account name" class="w-full" />
     </div>
 
     <div class="ca-field">
@@ -88,12 +121,73 @@
         pInputText
         id="token"
         type="password"
-        [(ngModel)]="form.token"
+        formControlName="token"
         [placeholder]="editingId !== null ? 'Leave blank to keep existing token' : 'Enter token'"
         class="w-full"
         autocomplete="new-password"
       />
     </div>
+
+    <div class="ca-field">
+      <label for="status_select">Status</label>
+      <p-multiselect
+        inputId="status_select"
+        [options]="statusOptions"
+        formControlName="selectedStatuses"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select statuses"
+        class="w-full"
+        (onChange)="onStatusChange()"
+      />
+    </div>
+
+    @if (selectedStatuses.length > 0) {
+      <div class="ca-stages-container" formGroupName="stages">
+        @for (status of selectedStatuses; track status) {
+          <div class="ca-stage-group">
+            <div class="ca-stage-header">
+              <span class="ca-stage-title">{{ status }} Stages</span>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
+                label="Add Stage"
+                class="p-button-sm p-button-text p-button-secondary"
+                [disabled]="getStageArray(status).length >= maxStages"
+                (click)="addStage(status)"
+              ></button>
+            </div>
+
+            @for (ctrl of getStageControls(status); track $index) {
+              <div class="ca-stage-row">
+                <input
+                  pInputText
+                  [formControl]="$any(ctrl)"
+                  placeholder="Enter stage name"
+                  class="w-full"
+                  [class.p-invalid]="isStageInvalid(status, $index)"
+                />
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-sm p-button-text p-button-danger"
+                  (click)="removeStage(status, $index)"
+                ></button>
+              </div>
+            }
+
+            @if (stageGroupError(status)) {
+              <small class="ca-error">{{ stageGroupError(status) }}</small>
+            }
+
+            <span class="ca-stage-count">{{ getStageArray(status).length }}/{{ maxStages }} stages</span>
+          </div>
+        }
+      </div>
+    }
+
   </div>
 
   <ng-template pTemplate="footer">

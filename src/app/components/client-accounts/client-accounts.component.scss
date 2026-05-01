@@ -61,3 +61,56 @@
 .ca-required {
   color: #ef4444;
 }
+
+.ca-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: -2px;
+}
+
+.ca-stages-summary {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.ca-stages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+.ca-stage-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ca-stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ca-stage-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.ca-stage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input {
+    flex: 1;
+  }
+}
+
+.ca-stage-count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-align: right;
+}

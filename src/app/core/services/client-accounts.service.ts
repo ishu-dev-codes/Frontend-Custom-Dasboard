@@ -1,22 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpService } from './http.service';
+import { ClientAccount, ClientAccountPayload } from '../models/client-account.model';
 
-export interface ClientAccount {
-  id: number;
-  client_name: string;
-  location_id: string;
-  ad_account_id: string;
-  ad_account_name: string;
-}
-
-export interface ClientAccountPayload {
-  client_name: string;
-  location_id: string;
-  ad_account_id: string;
-  ad_account_name: string;
-  token?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ClientAccountsService {
