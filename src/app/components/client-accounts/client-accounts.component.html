@@ -15,6 +15,8 @@
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
+    [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
     styleClass="p-datatable-sm p-datatable-striped"
     [tableStyle]="{ 'min-width': '72rem' }"
   >
@@ -52,6 +54,7 @@
         <td colspan="7" class="ca-empty">No client accounts found.</td>
       </tr>
     </ng-template>
+
   </p-table>
 </div>
 
