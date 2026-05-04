@@ -109,21 +109,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private currentModalLoader: ((page: number, pageSize?: number) => void) | null = null;
 
-  // private readonly commonColumnDefs: ColumnDef[] = [
-  //   { header: 'Name',       field: 'name' },
-  //   { header: 'Value',      field: 'monetaryValue' },
-  //   { header: 'Status',     field: 'status' },
-  //   { header: 'Source',     field: 'source' },
-  //   { header: 'Created At', field: 'createdAt',
-  //     extractor: v => v ? new Date(v).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '' },
-  //   { header: 'Contact',    field: 'contact',
-  //     extractor: v => v?.name ?? v?.email ?? '' },
-  //   { header: 'Tags',       field: 'tags',
-  //     extractor: v => Array.isArray(v) ? v.join(', ') : (v ?? '') },
-  //   { header: 'Ad Source',  field: 'attribution',
-  //     extractor: v => v?.adSource ?? '' },
-  // ];
-
   private readonly commonColumnDefs: ColumnDef[] = [
     { header: 'Opportunity Name', field: 'name' },
     { header: 'Contact Name',         field: 'contact',extractor: v => v?.name ?? '' },
@@ -150,13 +135,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { header: 'CPC',           field: 'cpc' },
   ];
 
+  private readonly leadsWonColumnDefs: ColumnDef[] = [
+  ...this.commonColumnDefs,
+  { header: 'Days Since Won', field: 'daysSinceWon' , },
+
+  ];
+
   private readonly cardColumnDefs: Record<string, ColumnDef[]> = {
     totalLeads:          this.commonColumnDefs,
     leadsAbandoned:      this.commonColumnDefs,
     leadsBooked:         this.commonColumnDefs,
     treatmentAccepted:   this.commonColumnDefs,
     opportunityPipeline: this.commonColumnDefs,
-    leadsWon:            this.commonColumnDefs,
+    leadsWon:            this.leadsWonColumnDefs,
     leadsFta:            this.commonColumnDefs,
     totalAdSpend:        this.metaCampaignColumnDefs,
   };

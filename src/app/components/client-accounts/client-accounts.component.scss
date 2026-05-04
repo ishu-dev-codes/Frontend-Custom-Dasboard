@@ -114,3 +114,180 @@
   color: #94a3b8;
   text-align: right;
 }
+
+// --- Stage Guide (in-form) ---
+
+.ca-guide-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ca-guide-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  background: #f8fafc;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i { color: #6366f1; font-size: 0.85rem; }
+  }
+
+  > i { color: #94a3b8; font-size: 0.75rem; }
+
+  &:hover { background: #f1f5f9; }
+}
+
+.ca-guide-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.ca-guide-open {
+  grid-template-rows: 1fr;
+}
+
+.ca-guide-panel-inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 12px;
+  transition: padding 0.28s ease, border-top-color 0.28s ease;
+  border-top: 1px solid transparent;
+}
+
+.ca-guide-open .ca-guide-panel-inner {
+  padding: 12px;
+  border-top-color: #e5e7eb;
+}
+
+.ca-guide-default-card {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.ca-guide-card-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin-bottom: 4px;
+
+  i { font-size: 0.8rem; }
+}
+
+.ca-guide-card-desc {
+  font-size: 0.76rem;
+  color: #475569;
+  margin: 0 0 8px;
+}
+
+.ca-guide-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ca-guide-chip {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 0.71rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ca-guide-cats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ca-guide-cat {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  padding: 8px 10px;
+}
+
+.ca-guide-cat-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+
+  i { font-size: 0.8rem; }
+}
+
+.ca-guide-list {
+  margin: 0;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  li {
+    font-size: 0.76rem;
+    color: #475569;
+    line-height: 1.4;
+  }
+}
+
+.ca-guide-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 0.73rem;
+  line-height: 1.4;
+
+  i { font-size: 0.78rem; margin-top: 1px; flex-shrink: 0; }
+}
+
+.ca-guide-won {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left-color: #22c55e;
+
+  .ca-guide-cat-title { color: #15803d; i { color: #16a34a; } }
+}
+
+.ca-guide-cancelled {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  border-left-color: #f97316;
+
+  .ca-guide-cat-title { color: #c2410c; i { color: #ea580c; } }
+}
+
+.ca-guide-booked {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+  border-left-color: #a855f7;
+
+  .ca-guide-cat-title { color: #7e22ce; i { color: #9333ea; } }
+  .ca-guide-tip { background: #f3e8ff; color: #581c87; i { color: #9333ea; } }
+}

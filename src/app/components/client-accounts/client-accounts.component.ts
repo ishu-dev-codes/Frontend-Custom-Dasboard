@@ -54,6 +54,18 @@ export class ClientAccountsComponent implements OnInit {
   dialogVisible = false;
   isSaving = false;
   editingId: number | null = null;
+  showGuide = false;
+
+  readonly defaultStages = [
+    'New Leads',
+    'Hot Leads - Reactivated',
+    'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7',
+    'In Progress',
+    'Booked Appointment',
+    'Failed to Attend',
+    'Post-Consult Follow Up',
+    'Automated Post-Consult Follow Up',
+  ];
 
   readonly statusOptions = STATUS_KEYS.map((k) => ({ label: k, value: k }));
   readonly maxStages = MAX_STAGES;

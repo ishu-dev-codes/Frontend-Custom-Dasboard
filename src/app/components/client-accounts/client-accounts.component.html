@@ -131,6 +131,66 @@
       />
     </div>
 
+    <div class="ca-guide-block">
+      <button type="button" class="ca-guide-toggle" (click)="showGuide = !showGuide">
+        <span>
+          <i class="pi pi-info-circle"></i>
+          Stage Configuration Guide
+        </span>
+        <i class="pi" [class.pi-chevron-down]="!showGuide" [class.pi-chevron-up]="showGuide"></i>
+      </button>
+
+      <div class="ca-guide-panel" [class.ca-guide-open]="showGuide">
+        <div class="ca-guide-panel-inner">
+
+          <div class="ca-guide-default-card">
+            <div class="ca-guide-card-title">
+              <i class="pi pi-check-circle"></i>
+              Default Stages — No Configuration Needed
+            </div>
+            <p class="ca-guide-card-desc">If stage names match exactly, all logic works automatically — no setup required.</p>
+            <div class="ca-guide-chips">
+              @for (stage of defaultStages; track stage) {
+                <span class="ca-guide-chip">{{ stage }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="ca-guide-cats">
+            <div class="ca-guide-cat ca-guide-won">
+              <div class="ca-guide-cat-title"><i class="pi pi-trophy"></i> Won Stage</div>
+              <ul class="ca-guide-list">
+                <li>Counted as a <strong>Won</strong> opportunity</li>
+                <li>Works regardless of the actual Opportunity status</li>
+                <li>Combined with opportunities already marked Won</li>
+              </ul>
+            </div>
+
+            <div class="ca-guide-cat ca-guide-cancelled">
+              <div class="ca-guide-cat-title"><i class="pi pi-ban"></i> Cancelled Stage</div>
+              <ul class="ca-guide-list">
+                <li>Excluded from <strong>Opportunity Pipeline</strong> value</li>
+                <li>Prevents inflating revenue with cancelled appointments</li>
+              </ul>
+            </div>
+
+            <div class="ca-guide-cat ca-guide-booked">
+              <div class="ca-guide-cat-title"><i class="pi pi-calendar-plus"></i> Booked Stage</div>
+              <ul class="ca-guide-list">
+                <li>Counted as a successful booking</li>
+                <li>Included in <strong>Leads Booked</strong> count and <strong>Booked Rate</strong></li>
+              </ul>
+              <div class="ca-guide-tip">
+                <i class="pi pi-lightbulb"></i>
+                Only add if names differ from default (e.g., "Booked Appointment" → "Booked Consult")
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <div class="ca-field">
       <label for="status_select">Status</label>
       <p-multiselect
@@ -141,6 +201,7 @@
         optionValue="value"
         placeholder="Select statuses"
         class="w-full"
+        appendTo="body"
         (onChange)="onStatusChange()"
       />
     </div>
