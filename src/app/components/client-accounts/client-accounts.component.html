@@ -23,6 +23,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="id" style="width:5%">ID <p-sortIcon field="id" /></th>
+        <th style="width:5%">Logo</th>
         <th pSortableColumn="client_name">Client Name <p-sortIcon field="client_name" /></th>
         <th pSortableColumn="ad_account_name">Ad Account Name <p-sortIcon field="ad_account_name" /></th>
         <th>Ad Account ID</th>
@@ -35,6 +36,13 @@
     <ng-template pTemplate="body" let-account>
       <tr>
         <td>{{ account.id }}</td>
+        <td>
+          @if (account.image_url) {
+            <img [src]="account.image_url" alt="{{ account.client_name }}" class="ca-logo-thumb" />
+          } @else {
+            <span class="ca-logo-empty">—</span>
+          }
+        </td>
         <td>{{ account.client_name }}</td>
         <td>{{ account.ad_account_name }}</td>
         <td class="ca-mono">{{ account.ad_account_id }}</td>
@@ -51,7 +59,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="ca-empty">No client accounts found.</td>
+        <td colspan="8" class="ca-empty">No client accounts found.</td>
       </tr>
     </ng-template>
 
@@ -129,6 +137,22 @@
         class="w-full"
         autocomplete="new-password"
       />
+    </div>
+
+    <div class="ca-field">
+      <label for="image_url">Image URL</label>
+      <input
+        pInputText
+        id="image_url"
+        formControlName="image_url"
+        placeholder="Enter Firebase image URL"
+        class="w-full"
+      />
+      @if (form.get('image_url')?.value) {
+        <div class="ca-image-preview">
+          <img [src]="form.get('image_url')?.value" alt="Preview" class="ca-logo-preview" />
+        </div>
+      }
     </div>
 
     <div class="ca-guide-block">

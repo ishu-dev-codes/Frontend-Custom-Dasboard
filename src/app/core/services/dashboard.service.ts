@@ -93,6 +93,16 @@ export class DashboardService {
     });
   }
 
+  getOpportunityPipeline(params: SbxLeadsParams): Observable<SbxLeadsResponse> {
+    return this.http.get<SbxLeadsResponse>('metrics/opportunity-pipeline', {
+      location_id: params.location_id,
+      start_date: params.start_date,
+      end_date: params.end_date,
+      page: params.page ?? 1,
+      page_size: params.page_size ?? 10,
+    });
+  }
+
   getLeadConversionMetrics(locationId: string, startDate?: string, endDate?: string): Observable<any> {
     return this.http.get('metrics/lead-conversion-metrics/cards', {
       location_id: locationId,

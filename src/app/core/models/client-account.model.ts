@@ -14,6 +14,7 @@ export interface  ClientAccount {
   location_id: string;
   ad_account_id: string;
   ad_account_name: string;
+  image_url?: string;
   pipeline_stages?: PipelineStages;
 }
 
@@ -23,6 +24,7 @@ export interface ClientAccountPayload {
   ad_account_id?: string;
   ad_account_name?: string;
   token?: string;
+  image_url?: string;
   pipeline_stages: {
     Booked: string[];
     Won: string[];

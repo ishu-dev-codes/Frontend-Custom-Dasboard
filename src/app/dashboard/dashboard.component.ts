@@ -252,6 +252,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return this.dashboardService.getLeadsWon(params);
       case 'leadsFta':
         return this.dashboardService.getLeadsFta(params);
+      case 'opportunityPipeline':
+        return this.dashboardService.getOpportunityPipeline(params);
       default:
         return this.dashboardService.getTotalSbxLeads(params);
     }

@@ -85,6 +85,7 @@ export class ClientAccountsComponent implements OnInit {
       ad_account_id: ['', adAccountIdValidator],
       ad_account_name: [''],
       token: [''],
+      image_url: [''],
       selectedStatuses: [[]],
       stages: this.fb.group({
         Booked: this.fb.array([]),
@@ -101,6 +102,7 @@ export class ClientAccountsComponent implements OnInit {
       ad_account_id: '',
       ad_account_name: '',
       token: '',
+      image_url: '',
       selectedStatuses: [],
     });
     for (const key of STATUS_KEYS) {
@@ -169,6 +171,7 @@ export class ClientAccountsComponent implements OnInit {
       ad_account_id: account.ad_account_id,
       ad_account_name: account.ad_account_name,
       token: '',
+      image_url: account.image_url ?? '',
       selectedStatuses: selected,
     });
 
@@ -274,6 +277,10 @@ saveAccount() {
 
   if (raw.token?.trim()) {
     payload.token = raw.token;
+  }
+
+  if (raw.image_url?.trim()) {
+    payload.image_url = raw.image_url;
   }
 
   this.isSaving = true;
