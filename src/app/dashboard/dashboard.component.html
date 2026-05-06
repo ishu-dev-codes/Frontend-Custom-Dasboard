@@ -127,5 +127,11 @@
 </div>
 
 @if (activeModal) {
-  <app-modal [data]="activeModal" (close)="closeModal()" (pageChange)="onSbxLeadsPageChange($event)" />
+  <app-modal
+    [data]="activeModal"
+    [isExporting]="isExporting"
+    (close)="closeModal()"
+    (pageChange)="onSbxLeadsPageChange($event)"
+    (exportAll)="onExportAll()"
+  />
 }

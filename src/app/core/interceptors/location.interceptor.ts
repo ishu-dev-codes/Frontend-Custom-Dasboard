@@ -1,5 +1,5 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { STORAGE_KEYS } from '../services/config.service';
+import { STORAGE_KEYS } from '../../shared/constants/common.consts';
 
 export const locationInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url.includes('/admin/config')) {

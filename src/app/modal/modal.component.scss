@@ -259,9 +259,26 @@
   padding: 12px 20px;
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 }
 
-/* ── Footer button ──────────────────────────────────── */
+/* ── Footer buttons ─────────────────────────────────── */
+::ng-deep .export-action-btn.p-button {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 9px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+
+  &:hover {
+    background: #f3f4f6 !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+  }
+}
+
 ::ng-deep .close-action-btn.p-button {
   background: linear-gradient(135deg, #4facfe, #7c3aed);
   border: none;

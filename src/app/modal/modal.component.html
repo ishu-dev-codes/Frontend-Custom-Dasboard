@@ -81,6 +81,14 @@
       </div>
     </div>
     <div class="footer-actions">
+      <p-button
+        icon="pi pi-download"
+        label="Export CSV"
+        [loading]="isExporting"
+        [disabled]="!data.total"
+        (onClick)="exportAll.emit()"
+        styleClass="export-action-btn"
+      />
       <p-button label="Close" (onClick)="close.emit()" styleClass="close-action-btn" />
     </div>
   </ng-template>

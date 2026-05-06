@@ -6,7 +6,11 @@
 <div class="ca-page">
   <div class="ca-toolbar">
     <h2 class="ca-title">Client Accounts</h2>
-    <button pButton icon="pi pi-plus" label="Add Account" class="p-button-sm" (click)="openCreate()"></button>
+    <div class="ca-toolbar-actions">
+      <button pButton icon="pi pi-key" label="Meta Token" class="p-button-sm p-button-outlined p-button-secondary" (click)="openMetaTokenDialog()"></button>
+      <button pButton icon="pi pi-download" label="Export CSV" class="p-button-sm p-button-outlined" (click)="exportAccountsCsv()" [disabled]="!accounts.length"></button>
+      <button pButton icon="pi pi-plus" label="Add Account" class="p-button-sm" (click)="openCreate()"></button>
+    </div>
   </div>
 
   <p-table
@@ -65,6 +69,52 @@
 
   </p-table>
 </div>
+
+<p-dialog
+  [(visible)]="metaTokenDialogVisible"
+  header="Meta Token"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="ca-meta-token-form">
+    @if (isLoadingMetaToken) {
+      <div class="ca-meta-token-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading token...</span>
+      </div>
+    } @else {
+      <div class="ca-field">
+        <label>Meta Access Token</label>
+        <div class="ca-token-input-wrap">
+          <input
+            pInputText
+            [type]="metaTokenMasked ? 'password' : 'text'"
+            [value]="metaTokenValue"
+            (input)="metaTokenValue = $any($event.target).value"
+            placeholder="Enter Meta access token"
+            class="w-full"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="ca-token-toggle"
+            (click)="metaTokenMasked = !metaTokenMasked"
+            [title]="metaTokenMasked ? 'Show token' : 'Hide token'"
+          >
+            <i class="pi" [class.pi-eye]="metaTokenMasked" [class.pi-eye-slash]="!metaTokenMasked"></i>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text p-button-secondary" (click)="metaTokenDialogVisible = false" [disabled]="isSavingMetaToken"></button>
+    <button pButton label="Save" (click)="saveMetaToken()" [loading]="isSavingMetaToken" [disabled]="isLoadingMetaToken"></button>
+  </ng-template>
+</p-dialog>
 
 <p-dialog
   [(visible)]="dialogVisible"

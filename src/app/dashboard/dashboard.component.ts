@@ -8,14 +8,15 @@ import {
 import { StatCardComponent, StatCardData } from '../components/stat-card/stat-card.component';
 import { RoiCardComponent, RoiCardData } from '../components/roi-card/roi-card.component';
 import { DashboardService, SbxLeadsResponse } from '../core/services/dashboard.service';
-import { ConfigService, STORAGE_KEYS } from '../core/services/config.service';
+import { ConfigService } from '../core/services/config.service';
 import { SkeletonCard } from '../shared/components/skeleton-card/skeleton-card.component';
 import { catchError, EMPTY, from, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent, DateRange } from '../shared/components/header.component/header.component';
 import { ActivatedRoute } from '@angular/router';
+import { STORAGE_KEYS } from '../shared/constants/common.consts';
+import { CARD_COLUMN_DEFS, CARD_FALLBACK_TITLES, COMMON_COLUMN_DEFS } from './dashboard.consts';
 
-type ColumnDef = { header: string; field: string; extractor?: (v: any) => string };
 
 @Component({
   selector: 'app-dashboard',
@@ -113,101 +114,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private currentModalLoader: ((page: number, pageSize?: number) => void) | null = null;
+  private activeCardId: string | null = null;
+  isExporting = false;
 
-  private readonly commonColumnDefs: ColumnDef[] = [
-    { header: 'Opportunity Name', field: 'name' },
-    { header: 'Contact Name', field: 'contact', extractor: (v) => v?.name ?? '' },
-    { header: 'Phone number', field: 'contact', extractor: (v) => v?.phone ?? '' },
-    { header: 'Lead Value', field: 'monetaryValue' },
-    { header: 'Pipeline Stage', field: 'pipelineStage' },
-    { header: 'Status', field: 'status' },
-    {
-      header: 'Created At',
-      field: 'createdAt',
-      extractor: (v) =>
-        v
-          ? new Date(v).toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric',
-            })
-          : '',
-    },
-    {
-      header: 'Tags',
-      field: 'tags',
-      extractor: (v) => (Array.isArray(v) ? v.join(', ') : (v ?? '')),
-    },
-    { header: 'Days in Stage', field: 'daysInStage' },
-    { header: 'UTM Campaign (First)', field: 'attribution', extractor: (v) => v?.campaign ?? '' },
-    { header: 'UTM Medium (First)', field: 'attribution', extractor: (v) => v?.medium ?? '' },
-    { header: 'UTM Content (First)', field: 'attribution', extractor: (v) => v?.content ?? '' },
-    { header: 'UTM Source (First)', field: 'attribution', extractor: (v) => v?.source ?? '' },
-  ];
-
-  private readonly metaCampaignColumnDefs: ColumnDef[] = [
-    { header: 'Campaign Name', field: 'campaign_name' },
-    { header: 'Spend', field: 'spend' },
-    { header: 'Impressions', field: 'impressions' },
-    { header: 'Clicks', field: 'clicks' },
-    { header: 'CTR', field: 'ctr' },
-    { header: 'CPC', field: 'cpc' },
-  ];
-
-  private readonly leadsWonColumnDefs: ColumnDef[] = [
-    { header: 'Opportunity Name', field: 'name' },
-    { header: 'Contact Name', field: 'contact', extractor: (v) => v?.name ?? '' },
-    { header: 'Phone number', field: 'contact', extractor: (v) => v?.phone ?? '' },
-    { header: 'Lead Value', field: 'monetaryValue' },
-    { header: 'Pipeline Stage', field: 'pipelineStage' },
-    { header: 'Status', field: 'status' },
-    {
-      header: 'Created At',
-      field: 'createdAt',
-      extractor: (v) =>
-        v
-          ? new Date(v).toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric',
-            })
-          : '',
-    },
-    {
-      header: 'Tags',
-      field: 'tags',
-      extractor: (v) => (Array.isArray(v) ? v.join(', ') : (v ?? '')),
-    },
-    { header: 'Days in Stage', field: 'daysInStage' },
-    { header: 'Days Since Won', field: 'daysSinceWon' },
-    { header: 'UTM Campaign (First)', field: 'attribution', extractor: (v) => v?.campaign ?? '' },
-    { header: 'UTM Medium (First)', field: 'attribution', extractor: (v) => v?.medium ?? '' },
-    { header: 'UTM Content (First)', field: 'attribution', extractor: (v) => v?.content ?? '' },
-    { header: 'UTM Source (First)', field: 'attribution', extractor: (v) => v?.source ?? '' },
-  ];
-
-  private readonly cardColumnDefs: Record<string, ColumnDef[]> = {
-    totalLeads: this.commonColumnDefs,
-    leadsAbandoned: this.commonColumnDefs,
-    leadsBooked: this.commonColumnDefs,
-    treatmentAccepted: this.commonColumnDefs,
-    opportunityPipeline: this.commonColumnDefs,
-    leadsWon: this.leadsWonColumnDefs,
-    leadsFta: this.commonColumnDefs,
-    totalAdSpend: this.metaCampaignColumnDefs,
-  };
-
-  private readonly cardFallbackTitles: Record<string, string> = {
-    totalLeads: '# Total SBX Leads',
-    leadsAbandoned: '# Leads Abandoned',
-    leadsBooked: '# Leads Booked',
-    treatmentAccepted: 'Treatment Accepted',
-    opportunityPipeline: 'Opportunity Pipeline',
-    leadsWon: '# Leads Won',
-    leadsFta: '# Leads FTA',
-    totalAdSpend: 'Total Ad Spend',
-  };
-
+  
   openModal(cardId: string) {
     const apiCards = [
       'totalLeads',
@@ -220,6 +130,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'leadsFta',
     ];
     if (apiCards.includes(cardId)) {
+      this.activeCardId = cardId;
+      this.isExporting = false;
       this.currentModalLoader = (page, pageSize = 10) =>
         this.loadPaginatedModal(cardId, page, pageSize);
       this.loadPaginatedModal(cardId, 1);
@@ -270,7 +182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (!this.activeModal) {
       this.activeModal = {
-        title: this.cardFallbackTitles[cardId] || cardId,
+        title: CARD_FALLBACK_TITLES[cardId] || cardId,
         headers: [],
         rows: [],
         tableLoading: true,
@@ -281,7 +193,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.getApiCall(cardId, params).subscribe({
       next: (res: SbxLeadsResponse) => {
-        const defs = this.cardColumnDefs[cardId] ?? this.commonColumnDefs;
+        const defs = CARD_COLUMN_DEFS[cardId] ?? COMMON_COLUMN_DEFS;
         const rows = (res.records ?? []).map((record) =>
           defs.map((def) => {
             const val = Array.isArray(record)
@@ -291,7 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }),
         );
         this.activeModal = {
-          title: this.cardFallbackTitles[cardId] || res.metric_name || cardId,
+          title: CARD_FALLBACK_TITLES[cardId] || res.metric_name || cardId,
           headers: defs.map((d) => d.header),
           rows,
           total: res.total_count || res.total || rows.length,
@@ -312,7 +224,57 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.currentModalLoader?.(event.page, event.pageSize);
   }
 
+  onExportAll() {
+    if (!this.activeCardId || !this.activeModal) return;
+    this.isExporting = true;
+    const total = this.activeModal.total || 10000;
+    const params = {
+      location_id: this.locationId,
+      start_date: this.activeRange.start ?? '',
+      end_date: this.activeRange.end ?? '',
+      page: 1,
+      page_size: total,
+    };
+
+    this.getApiCall(this.activeCardId, params).subscribe({
+      next: (res: SbxLeadsResponse) => {
+        const defs = CARD_COLUMN_DEFS[this.activeCardId!] ?? COMMON_COLUMN_DEFS;
+        const headers = defs.map((d) => d.header);
+        const rows = (res.records ?? []).map((record) =>
+          defs.map((def) => {
+            const val = Array.isArray(record)
+              ? record[res.columns.indexOf(def.field)]
+              : record[def.field];
+            return def.extractor ? def.extractor(val) : (val ?? '');
+          }),
+        );
+        this.downloadCsv(`${this.activeCardId}.csv`, headers, rows);
+        this.isExporting = false;
+      },
+      error: () => {
+        this.isExporting = false;
+      },
+    });
+  }
+
   closeModal() {
     this.activeModal = null;
+    this.activeCardId = null;
+    this.isExporting = false;
+  }
+
+  private downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+    const escape = (v: string | number) => {
+      const s = String(v ?? '');
+      return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers, ...rows].map((row) => row.map(escape).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

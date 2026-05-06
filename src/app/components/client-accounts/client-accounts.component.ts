@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -12,14 +12,17 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ClientAccountsService } from '../../core/services/client-accounts.service';
 import {
-  adAccountIdValidator,
   ClientAccount,
   ClientAccountPayload,
   ClientStatusKey,
-  MAX_STAGES,
   PipelineStages,
-  STATUS_KEYS,
 } from '../../core/models/client-account.model';
+import {
+  adAccountIdValidator,
+  DEFAULT_STAGES,
+  MAX_STAGES,
+  STATUS_KEYS,
+} from '../../core/constants/client-account.consts';
 import { HeaderComponent } from '../../shared/components/header.component/header.component';
 
 @Component({
@@ -56,16 +59,13 @@ export class ClientAccountsComponent implements OnInit {
   editingId: number | null = null;
   showGuide = false;
 
-  readonly defaultStages = [
-    'New Leads',
-    'Hot Leads - Reactivated',
-    'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7',
-    'In Progress',
-    'Booked Appointment',
-    'Failed to Attend',
-    'Post-Consult Follow Up',
-    'Automated Post-Consult Follow Up',
-  ];
+  metaTokenDialogVisible = false;
+  metaTokenValue = '';
+  metaTokenMasked = true;
+  isLoadingMetaToken = false;
+  isSavingMetaToken = false;
+
+  readonly defaultStages = DEFAULT_STAGES;
 
   readonly statusOptions = STATUS_KEYS.map((k) => ({ label: k, value: k }));
   readonly maxStages = MAX_STAGES;
@@ -341,5 +341,74 @@ saveAccount() {
 
   get dialogTitle(): string {
     return this.editingId !== null ? 'Edit Account' : 'New Account';
+  }
+
+  // --- Meta Token ---
+
+  openMetaTokenDialog() {
+    this.metaTokenDialogVisible = true;
+    this.metaTokenValue = '';
+    this.metaTokenMasked = true;
+    this.isLoadingMetaToken = true;
+    this.service.getMetaToken().subscribe({
+      next: (res) => {
+        this.metaTokenValue = res.token ?? '';
+        this.isLoadingMetaToken = false;
+      },
+      error: () => {
+        this.isLoadingMetaToken = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load meta token' });
+      },
+    });
+  }
+
+  saveMetaToken() {
+    const token = this.metaTokenValue.trim();
+    if (!token) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Token cannot be empty' });
+      return;
+    }
+    this.isSavingMetaToken = true;
+    this.service.updateMetaToken(token).subscribe({
+      next: () => {
+        this.isSavingMetaToken = false;
+        this.metaTokenDialogVisible = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Meta token updated' });
+      },
+      error: () => {
+        this.isSavingMetaToken = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update meta token' });
+      },
+    });
+  }
+
+  // --- CSV Export ---
+
+  exportAccountsCsv() {
+    const headers = ['ID', 'Client Name', 'Ad Account Name', 'Ad Account ID', 'Location ID', 'Pipeline Stages'];
+    const rows = this.accounts.map((a) => [
+      a.id,
+      a.client_name,
+      a.ad_account_name ?? '',
+      a.ad_account_id ?? '',
+      a.location_id,
+      this.stageSummary(a),
+    ]);
+    this.downloadCsv('client-accounts.csv', headers, rows);
+  }
+
+  private downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+    const escape = (v: string | number) => {
+      const s = String(v ?? '');
+      return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers, ...rows].map((row) => row.map(escape).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

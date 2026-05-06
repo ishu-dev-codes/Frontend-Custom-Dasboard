@@ -25,8 +25,10 @@ export interface ModalTableData {
 })
 export class ModalComponent {
   @Input() data!: ModalTableData;
+  @Input() isExporting = false;
   @Output() close = new EventEmitter<void>();
   @Output() pageChange = new EventEmitter<{ page: number; pageSize: number }>();
+  @Output() exportAll = new EventEmitter<void>();
 
   visible = true;
 

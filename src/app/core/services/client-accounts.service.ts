@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpService } from './http.service';
-import { ClientAccount, ClientAccountPayload } from '../models/client-account.model';
+import { ClientAccount, ClientAccountPayload, MetaTokenResponse } from '../models/client-account.model';
 
 
 @Injectable({ providedIn: 'root' })
@@ -26,5 +26,13 @@ export class ClientAccountsService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`client-accounts/${id}`);
+  }
+
+  getMetaToken(): Observable<MetaTokenResponse> {
+    return this.http.get<MetaTokenResponse>('meta-config/token');
+  }
+
+  updateMetaToken(token: string): Observable<MetaTokenResponse> {
+    return this.http.post<MetaTokenResponse>('meta-config/token', { token });
   }
 }

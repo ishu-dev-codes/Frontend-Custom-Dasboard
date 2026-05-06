@@ -18,9 +18,51 @@
   color: #1e293b;
 }
 
+.ca-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .ca-actions {
   display: flex;
   gap: 4px;
+}
+
+.ca-meta-token-form {
+  padding: 8px 0;
+}
+
+.ca-meta-token-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.ca-token-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input { flex: 1; padding-right: 40px; }
+}
+
+.ca-token-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+
+  &:hover { color: #374151; }
 }
 
 .ca-mono {

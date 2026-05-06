@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { STORAGE_KEYS } from '../../shared/constants/common.consts';
 
-export const STORAGE_KEYS = {
-  LOCATION_ID: 'location_id',
-  AD_ACCOUNT_ID: 'ad_account_id',
-};
+
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
